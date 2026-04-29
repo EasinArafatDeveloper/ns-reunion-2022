@@ -24,7 +24,7 @@ const NoticesAdmin = () => {
     date: '',
     description: '',
     category: 'GENERAL',
-    isNew: true,
+    showNewBadge: true,
     hasAttachment: false
   });
 
@@ -59,7 +59,7 @@ const NoticesAdmin = () => {
         Swal.fire('Success', `Notice ${editingNotice ? 'updated' : 'published'}!`, 'success');
         setShowModal(false);
         setEditingNotice(null);
-        setFormData({ title: '', date: '', description: '', category: 'GENERAL', isNew: true, hasAttachment: false });
+        setFormData({ title: '', date: '', description: '', category: 'GENERAL', showNewBadge: true, hasAttachment: false });
         fetchNotices();
       }
     } catch (error) {
@@ -90,7 +90,7 @@ const NoticesAdmin = () => {
       date: notice.date,
       description: notice.description,
       category: notice.category,
-      isNew: notice.isNew,
+      showNewBadge: notice.showNewBadge,
       hasAttachment: notice.hasAttachment
     });
     setShowModal(true);
@@ -131,7 +131,7 @@ const NoticesAdmin = () => {
               <div className="flex items-center gap-3 mb-2">
                 <span className="text-[10px] font-black text-secondary tracking-widest uppercase">{notice.category}</span>
                 <span className="text-[10px] font-bold text-gray-400">{notice.date}</span>
-                {notice.isNew && <span className="bg-green-500 text-white text-[8px] font-black px-2 py-0.5 rounded-full uppercase">New</span>}
+                {notice.showNewBadge && <span className="bg-green-500 text-white text-[8px] font-black px-2 py-0.5 rounded-full uppercase">New</span>}
               </div>
               <h3 className="text-xl font-bold text-primary">{notice.title}</h3>
             </div>
@@ -188,7 +188,7 @@ const NoticesAdmin = () => {
                   </div>
                   <div className="flex gap-8">
                     <label className="flex items-center gap-3 cursor-pointer group">
-                      <input type="checkbox" checked={formData.isNew} onChange={e => setFormData({...formData, isNew: e.target.checked})} className="w-5 h-5 rounded-md accent-secondary" />
+                      <input type="checkbox" checked={formData.showNewBadge} onChange={e => setFormData({...formData, showNewBadge: e.target.checked})} className="w-5 h-5 rounded-md accent-secondary" />
                       <span className="text-sm font-bold text-gray-600 group-hover:text-primary transition-colors">Mark as New</span>
                     </label>
                     <label className="flex items-center gap-3 cursor-pointer group">

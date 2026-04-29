@@ -59,7 +59,7 @@ const NoticesPage = () => {
               </div>
             ) : notices.map((notice, index) => (
               <motion.div key={notice._id} initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.1 }} className="bg-white rounded-[2.5rem] p-8 md:p-10 border border-gray-100 shadow-sm hover:shadow-xl hover:border-primary/10 transition-all group relative overflow-hidden">
-                {notice.isNew && <div className="absolute top-0 right-0"><div className="bg-secondary text-white text-[10px] font-black px-10 py-1 rotate-45 translate-x-8 translate-y-3 shadow-md">NEW</div></div>}
+                {notice.showNewBadge && <div className="absolute top-0 right-0"><div className="bg-secondary text-white text-[10px] font-black px-10 py-1 rotate-45 translate-x-8 translate-y-3 shadow-md">NEW</div></div>}
                 <div className="flex flex-col md:flex-row gap-8 items-start md:items-center">
                   <div className="p-5 bg-primary/5 rounded-[1.5rem] group-hover:bg-primary group-hover:text-white transition-colors">
                     <Megaphone className="w-8 h-8" />

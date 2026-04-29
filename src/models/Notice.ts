@@ -5,7 +5,7 @@ const NoticeSchema = new Schema({
   date: { type: String, required: true },
   description: { type: String, required: true },
   category: { type: String, default: 'GENERAL' }, // IMPORTANT, GENERAL, etc.
-  isNew: { type: Boolean, default: true },
+  showNewBadge: { type: Boolean, default: true },
   hasAttachment: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now },
 });
