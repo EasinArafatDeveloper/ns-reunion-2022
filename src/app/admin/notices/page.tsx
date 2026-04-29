@@ -104,7 +104,7 @@ const NoticesAdmin = () => {
           <p className="text-gray-500 font-bold">Post announcements and updates for participants.</p>
         </div>
         <button 
-          onClick={() => { setEditingNotice(null); setFormData({ title: '', date: '', description: '', category: 'GENERAL', isNew: true, hasAttachment: false }); setShowModal(true); }}
+          onClick={() => { setEditingNotice(null); setFormData({ title: '', date: '', description: '', category: 'GENERAL', showNewBadge: true, hasAttachment: false }); setShowModal(true); }}
           className="flex items-center gap-2 px-6 py-3 bg-secondary text-primary rounded-2xl font-black hover:bg-opacity-90 transition-all shadow-xl shadow-secondary/20"
         >
           <Plus className="w-5 h-5" />
