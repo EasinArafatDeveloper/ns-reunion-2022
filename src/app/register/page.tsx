@@ -69,7 +69,7 @@ const RegisterPage = () => {
         setFormData({
           name: '', email: '', phone: '', section: '', department: '', code: '',
           institute: '', currentSection: '', currentDepartment: '', occupation: '',
-          tshirtSize: '', amount: '', paymentOption: 'bkash', comment: '', photo: ''
+          tshirtSize: '', amount: '', paymentOption: 'bkash', transactionId: '', comment: '', photo: ''
         });
       } else {
         throw new Error(result.message);
