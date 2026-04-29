@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Swal from 'sweetalert2';
 import dynamic from 'next/dynamic';
-import 'react-quill/dist/quill.snow.css';
+import 'react-quill-new/dist/quill.snow.css';
 import { 
   Plus, 
   Edit3, 
@@ -19,8 +19,8 @@ import {
   Image as ImageIcon
 } from 'lucide-react';
 
-// Dynamically import ReactQuill to avoid SSR issues
-const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
+// Dynamically import ReactQuill from react-quill-new for React 19 compatibility
+const ReactQuill = dynamic(() => import('react-quill-new'), { ssr: false });
 
 const EventsAdmin = () => {
   const [events, setEvents] = useState<any[]>([]);
