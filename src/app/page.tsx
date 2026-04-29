@@ -33,7 +33,7 @@ export default function Home() {
             >
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary text-white font-bold text-[10px] mb-4 shadow-lg shadow-secondary/20">
                 <Sparkles className="w-3 h-3 text-white/80" />
-                <span>{language === 'bn' ? 'মেগা রিইউনিয়ন ২০২২' : 'Mega Reunion 2022'}</span>
+                <span>{language === 'bn' ? 'রিইউনিয়ন 2.0 (2026)' : 'Reunion 2.0 (2026)'}</span>
               </div>
               
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight text-primary leading-[1.2] mb-5">
