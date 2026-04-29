@@ -11,7 +11,8 @@ import {
   Image as ImageIcon, 
   LogOut, 
   Menu,
-  X
+  X,
+  Settings
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { signOut } from 'next-auth/react';
@@ -26,6 +27,7 @@ const Sidebar = () => {
     { name: 'Events', icon: Calendar, href: '/admin/events' },
     { name: 'Notices', icon: Bell, href: '/admin/notices' },
     { name: 'Gallery', icon: ImageIcon, href: '/admin/gallery' },
+    { name: 'Settings', icon: Settings, href: '/admin/content' },
   ];
 
   const SidebarContent = () => (
