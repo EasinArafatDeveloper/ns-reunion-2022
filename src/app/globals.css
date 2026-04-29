@@ -1,0 +1,45 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-outfit);
+  --font-bengali: var(--font-hind-siliguri);
+  --color-primary: #1a1a54; /* Deep Navy Blue from logo */
+  --color-secondary: #ff8c00; /* Vibrant Orange from logo */
+}
+
+:root {
+  --background: #ffffff;
+  --foreground: #1a1a54;
+}
+
+@layer base {
+  ::selection {
+    background-color: var(--color-blue-100);
+    color: var(--color-blue-900);
+  }
+}
+
+.glass {
+  background-color: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+@keyframes spin-slow {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 20s linear infinite;
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
