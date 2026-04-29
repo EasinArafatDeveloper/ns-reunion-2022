@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import Countdown from "@/components/ui/Countdown";
 import { ArrowRight, Sparkles, Calendar, MapPin } from "lucide-react";
 import Gallery from "@/components/sections/Gallery";
+import Link from "next/link";
 
 export default function Home() {
   const { t, language } = useLanguage();
