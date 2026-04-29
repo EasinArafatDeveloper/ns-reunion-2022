@@ -51,22 +51,26 @@ export default function Home() {
 
 
               <div className="flex flex-col sm:flex-row gap-4">
-                <motion.button
-                  whileHover={{ scale: 1.05, x: 5 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="group px-8 py-4 bg-secondary text-white rounded-2xl font-bold text-lg shadow-xl shadow-secondary/20 hover:bg-opacity-90 transition-all flex items-center justify-center gap-3"
-                >
-                  <span>{t.hero.cta}</span>
-                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                </motion.button>
+                <Link href="/register" className="w-full sm:w-auto">
+                  <motion.button
+                    whileHover={{ scale: 1.05, x: 5 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="group px-8 py-4 bg-secondary text-white rounded-2xl font-bold text-lg shadow-xl shadow-secondary/20 hover:bg-opacity-90 transition-all flex items-center justify-center gap-3 w-full"
+                  >
+                    <span>{t.hero.cta}</span>
+                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  </motion.button>
+                </Link>
                 
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="px-8 py-4 bg-white text-primary border-2 border-primary/10 rounded-2xl font-bold text-lg hover:bg-gray-50 transition-all shadow-sm"
-                >
-                  {t.nav.events}
-                </motion.button>
+                <Link href="/events" className="w-full sm:w-auto">
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="px-8 py-4 bg-white text-primary border-2 border-primary/10 rounded-2xl font-bold text-lg hover:bg-gray-50 transition-all shadow-sm w-full"
+                  >
+                    {t.nav.events}
+                  </motion.button>
+                </Link>
               </div>
             </motion.div>
 
