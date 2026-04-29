@@ -63,35 +63,31 @@ const Countdown = () => {
   ];
 
   return (
-    <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-6">
+    <div className="flex flex-row items-center justify-center gap-1.5 sm:gap-4 flex-nowrap">
       {timeUnits.map((unit, index) => (
-        <div key={index} className="flex flex-col items-center gap-4">
-          {/* Flip Card Container */}
+        <div key={index} className="flex flex-col items-center gap-2 sm:gap-3">
+          {/* Smaller Flip Card Container */}
           <div className="relative group">
-            {/* The Main Card */}
+            {/* The Main Card (Smaller Size) */}
             <motion.div
               initial={{ rotateX: -90, opacity: 0 }}
               animate={{ rotateX: 0, opacity: 1 }}
               transition={{ delay: index * 0.1, type: "spring", stiffness: 100 }}
-              className="w-20 h-28 sm:w-28 sm:h-36 bg-gradient-to-b from-secondary to-orange-600 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-2xl relative overflow-hidden border-b-4 border-orange-800"
+              className="w-14 h-20 sm:w-20 sm:h-28 bg-gradient-to-b from-secondary to-orange-600 rounded-lg sm:rounded-2xl flex items-center justify-center shadow-lg relative overflow-hidden border-b-2 sm:border-b-4 border-orange-800"
             >
               {/* Horizontal Line In Middle */}
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full h-[2px] bg-black/10 z-10" />
+                <div className="w-full h-[1px] sm:h-[2px] bg-black/10 z-10" />
               </div>
 
-              {/* Little Pin Holes on Sides */}
-              <div className="absolute left-1 top-1/2 -translate-y-1/2 w-1.5 h-3 bg-black/20 rounded-full" />
-              <div className="absolute right-1 top-1/2 -translate-y-1/2 w-1.5 h-3 bg-black/20 rounded-full" />
-
-              {/* Number */}
+              {/* Number (Smaller font) */}
               <AnimatePresence mode="wait">
                 <motion.span
                   key={unit.value}
-                  initial={{ y: 10, opacity: 0 }}
+                  initial={{ y: 5, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
-                  exit={{ y: -10, opacity: 0 }}
-                  className="text-3xl sm:text-5xl font-black text-primary tabular-nums z-20"
+                  exit={{ y: -5, opacity: 0 }}
+                  className="text-xl sm:text-3xl font-black text-primary tabular-nums z-20"
                 >
                   {String(unit.value).padStart(2, '0')}
                 </motion.span>
@@ -101,10 +97,10 @@ const Countdown = () => {
               <div className="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent pointer-events-none" />
             </motion.div>
 
-            {/* Bottom Label Badge */}
-            <div className="mt-4 flex justify-center">
-              <div className="px-4 py-1.5 bg-white rounded-full shadow-lg border border-gray-100">
-                <span className="text-[10px] font-black text-primary tracking-widest uppercase">
+            {/* Bottom Label Badge (Smaller) */}
+            <div className="mt-2 flex justify-center">
+              <div className="px-2 py-0.5 sm:px-4 sm:py-1.5 bg-white rounded-full shadow-md border border-gray-50">
+                <span className="text-[7px] sm:text-[9px] font-black text-primary tracking-widest uppercase">
                   {unit.label}
                 </span>
               </div>
