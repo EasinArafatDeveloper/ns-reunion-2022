@@ -2,192 +2,141 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Save, Loader2, Globe } from 'lucide-react';
+import Swal from 'sweetalert2';
+import { 
+  Save, 
+  Clock, 
+  Calendar,
+  Loader2,
+  Settings
+} from 'lucide-react';
 
-const AdminContentPage = () => {
-  const [content, setContent] = useState<any>(null);
+const ContentAdmin = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [activeLang, setActiveLang] = useState<'en' | 'bn'>('bn');
+  const [reunionDate, setReunionDate] = useState('');
+  const [reunionTime, setReunionTime] = useState('');
 
-  useEffect(() => {
-    fetch('/api/admin/content')
-      .then(res => res.json())
-      .then(data => {
-        setContent(data);
-        setLoading(false);
-      });
-  }, []);
-
-  const handleChange = (path: string, value: string) => {
-    const newContent = { ...content };
-    const keys = path.split('.');
-    let current = newContent;
-    for (let i = 0; i < keys.length - 1; i++) {
-      current = current[keys[i]];
+  const fetchSettings = async () => {
+    try {
+      const res = await fetch('/api/admin/content');
+      const data = await res.json();
+      const dateSetting = data.find((c: any) => c.key === 'reunion_date');
+      if (dateSetting) {
+        const dt = new Date(dateSetting.value);
+        setReunionDate(dt.toISOString().split('T')[0]);
+        setReunionTime(dt.toTimeString().split(' ')[0].substring(0, 5));
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
     }
-    current[keys[keys.length - 1]][activeLang] = value;
-    setContent(newContent);
   };
 
-  const handleSave = async () => {
+  useEffect(() => {
+    fetchSettings();
+  }, []);
+
+  const handleUpdateDate = async (e: React.FormEvent) => {
+    e.preventDefault();
     setSaving(true);
+    const fullDateTime = `${reunionDate}T${reunionTime}:00`;
+
     try {
-      await fetch('/api/admin/content', {
+      const res = await fetch('/api/admin/content', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(content),
+        body: JSON.stringify({ key: 'reunion_date', value: fullDateTime })
       });
-      alert('Content saved successfully!');
+      if (res.ok) {
+        Swal.fire('Success', 'Global Reunion Date updated!', 'success');
+      }
     } catch (error) {
-      alert('Failed to save content');
+      Swal.fire('Error', 'Failed to update', 'error');
     } finally {
       setSaving(false);
     }
   };
 
-  if (loading) return (
-    <div className="flex h-screen items-center justify-center">
-      <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
-    </div>
-  );
-
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-5xl mx-auto">
-        <header className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Content Management</h1>
-            <p className="text-gray-500">Manage bilingual content for the entire website</p>
-          </div>
-          
-          <div className="flex items-center space-x-4">
-            <div className="bg-white rounded-lg p-1 shadow-sm border border-gray-200 flex">
-              <button
-                onClick={() => setActiveLang('bn')}
-                className={`px-4 py-2 rounded-md font-medium transition-all ${activeLang === 'bn' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-600 hover:bg-gray-100'}`}
-              >
-                Bangla
-              </button>
-              <button
-                onClick={() => setActiveLang('en')}
-                className={`px-4 py-2 rounded-md font-medium transition-all ${activeLang === 'en' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-600 hover:bg-gray-100'}`}
-              >
-                English
-              </button>
-            </div>
-            
-            <button
-              onClick={handleSave}
-              disabled={saving}
-              className="flex items-center space-x-2 bg-green-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-green-700 transition-all disabled:opacity-50"
-            >
-              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-              <span>Save Changes</span>
-            </button>
-          </div>
-        </header>
-
-        <div className="grid grid-cols-1 gap-8">
-          {/* Hero Section */}
-          <section className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-            <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-              <Globe className="w-5 h-5 text-blue-500" /> Hero Section
-            </h2>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Title ({activeLang === 'bn' ? 'বাংলা' : 'English'})</label>
-                <input
-                  type="text"
-                  value={content.hero.title[activeLang]}
-                  onChange={(e) => handleChange('hero.title', e.target.value)}
-                  className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Subtitle ({activeLang === 'bn' ? 'বাংলা' : 'English'})</label>
-                <textarea
-                  value={content.hero.subtitle[activeLang]}
-                  onChange={(e) => handleChange('hero.subtitle', e.target.value)}
-                  className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none h-24"
-                />
-              </div>
-            </div>
-          </section>
-
-          {/* Event Section */}
-          <section className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-            <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-              <Globe className="w-5 h-5 text-purple-500" /> Event Details
-            </h2>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Details ({activeLang === 'bn' ? 'বাংলা' : 'English'})</label>
-              <textarea
-                value={content.event.details[activeLang]}
-                onChange={(e) => handleChange('event.details', e.target.value)}
-                className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none h-32"
-              />
-            </div>
-          </section>
-
-          {/* Notice & Gallery Section */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <section className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-              <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-                <Globe className="w-5 h-5 text-orange-500" /> Notice
-              </h2>
-              <textarea
-                value={content.notice[activeLang]}
-                onChange={(e) => handleChange('notice', e.target.value)}
-                className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none h-24"
-              />
-            </section>
-            
-            <section className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-              <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-                <Globe className="w-5 h-5 text-pink-500" /> Gallery Title
-              </h2>
-              <input
-                type="text"
-                value={content.gallery.title[activeLang]}
-                onChange={(e) => handleChange('gallery.title', e.target.value)}
-                className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-              />
-            </section>
-          </div>
-
-          {/* Email Templates */}
-          <section className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-            <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-              <Save className="w-5 h-5 text-indigo-500" /> Email Templates
-            </h2>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Registration Subject ({activeLang === 'bn' ? 'বাংলা' : 'English'})</label>
-                <input
-                  type="text"
-                  value={content.emailTemplates.registrationSubject[activeLang]}
-                  onChange={(e) => handleChange('emailTemplates.registrationSubject', e.target.value)}
-                  className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Registration Body ({activeLang === 'bn' ? 'বাংলা' : 'English'}) - Use {'{name}'} for placeholder</label>
-                <textarea
-                  value={content.emailTemplates.registrationBody[activeLang]}
-                  onChange={(e) => handleChange('emailTemplates.registrationBody', e.target.value)}
-                  className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none h-48"
-                />
-              </div>
-            </div>
-          </section>
-          
-          {/* More sections like Notice, Gallery etc. would follow the same pattern */}
-          <p className="text-center text-gray-400 italic">Notice, Gallery, and Footer sections follow the same bilingual logic above.</p>
-        </div>
+    <div className="space-y-8 max-w-4xl">
+      <div>
+        <h1 className="text-3xl font-black text-primary mb-2">Website Settings</h1>
+        <p className="text-gray-500 font-bold">Manage global configurations and event schedules.</p>
       </div>
+
+      {loading ? (
+        <div className="py-20 flex flex-col items-center gap-4">
+          <Loader2 className="w-10 h-10 animate-spin text-secondary" />
+          <span className="text-gray-400 font-bold">Loading settings...</span>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 gap-8">
+          {/* Reunion Countdown Setting */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-white rounded-[3rem] p-10 border border-gray-100 shadow-xl shadow-primary/5"
+          >
+            <div className="flex items-center gap-4 mb-8">
+              <div className="p-4 bg-secondary/10 rounded-2xl">
+                <Clock className="w-8 h-8 text-secondary" />
+              </div>
+              <div>
+                <h2 className="text-xl font-black text-primary">Main Event Countdown</h2>
+                <p className="text-sm text-gray-400 font-bold">Change the target date for the global timer.</p>
+              </div>
+            </div>
+
+            <form onSubmit={handleUpdateDate} className="space-y-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Event Date</label>
+                  <div className="relative">
+                    <Calendar className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <input 
+                      type="date" 
+                      value={reunionDate}
+                      onChange={(e) => setReunionDate(e.target.value)}
+                      className="w-full pl-14 pr-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-primary/10 outline-none font-bold"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Event Time</label>
+                  <div className="relative">
+                    <Clock className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <input 
+                      type="time" 
+                      value={reunionTime}
+                      onChange={(e) => setReunionTime(e.target.value)}
+                      className="w-full pl-14 pr-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-primary/10 outline-none font-bold"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-6 bg-primary/5 rounded-[2rem] border border-primary/5">
+                <p className="text-sm text-primary/60 font-bold leading-relaxed">
+                  <span className="text-primary font-black">Note:</span> Changing this will update the countdown on the Landing Page and in automated registration emails instantly.
+                </p>
+              </div>
+
+              <button 
+                type="submit" 
+                disabled={saving}
+                className="w-full md:w-auto px-12 py-5 bg-primary text-white rounded-2xl font-black text-lg flex items-center justify-center gap-3 hover:bg-opacity-90 transition-all shadow-xl shadow-primary/20 disabled:opacity-50"
+              >
+                {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5 text-secondary" />}
+                <span>Save Changes</span>
+              </button>
+            </form>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 };
 
-export default AdminContentPage;
+export default ContentAdmin;

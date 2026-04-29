@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
 import Registration from '@/models/Registration';
+import WebsiteContent from '@/models/WebsiteContent';
 import nodemailer from 'nodemailer';
 
 export async function POST(req: Request) {
@@ -8,10 +9,19 @@ export async function POST(req: Request) {
     await connectToDatabase();
     const data = await req.json();
     
-    // 1. Create new registration in MongoDB
+    // 1. Fetch Dynamic Event Date from WebsiteContent
+    const dateSetting = await WebsiteContent.findOne({ key: 'reunion_date' });
+    const targetDate = dateSetting ? new Date(dateSetting.value) : new Date("2026-12-31T23:59:59");
+    const formattedDate = targetDate.toLocaleDateString('en-US', { 
+      month: 'long', 
+      day: 'numeric', 
+      year: 'numeric' 
+    });
+
+    // 2. Create new registration in MongoDB
     const newRegistration = await Registration.create(data);
 
-    // 2. Setup Nodemailer Transporter
+    // 3. Setup Nodemailer Transporter
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
@@ -20,10 +30,9 @@ export async function POST(req: Request) {
       },
     });
 
-    // 3. Stunning Email Template
-    const eventDate = new Date("2026-12-25"); // Example Event Date
+    // 4. Calculate Countdown for Email
     const today = new Date();
-    const diffTime = Math.abs(eventDate.getTime() - today.getTime());
+    const diffTime = Math.abs(targetDate.getTime() - today.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
     const emailHtml = `
@@ -57,7 +66,7 @@ export async function POST(req: Request) {
           <div class="content">
             <h2 class="user-name">Hi ${data.name},</h2>
             <p style="font-size: 17px; line-height: 1.8; font-weight: 500;">
-              Your spot is officially secured for the most anticipated event of the year! We can't wait to see you back at the NS Reunion 2022.
+              Your spot is officially secured for the most anticipated event! We can't wait to see you back at the NS Reunion.
             </p>
             
             <div class="details-card">
@@ -78,7 +87,7 @@ export async function POST(req: Request) {
             <div class="countdown-box">
               <span class="days-left">${diffDays}</span>
               <span class="days-label">Days to the Grand Celebration</span>
-              <p style="margin-top: 15px; color: #c2410c; font-size: 14px; font-weight: bold;">📅 Save the Date: December 25, 2026</p>
+              <p style="margin-top: 15px; color: #c2410c; font-size: 14px; font-weight: bold;">📅 Save the Date: ${formattedDate}</p>
             </div>
 
             <p style="margin-top: 40px; font-size: 15px; font-weight: 600; text-align: center; color: #64748b;">
@@ -93,9 +102,9 @@ export async function POST(req: Request) {
       </html>
     `;
 
-    // 4. Send Email
+    // 5. Send Email
     await transporter.sendMail({
-      from: `"NS Reunion 2022" <${process.env.EMAIL_USER}>`,
+      from: `"NS Reunion" <${process.env.EMAIL_USER}>`,
       to: data.email,
       subject: `Registration Confirmed! - ${diffDays} Days Left`,
       html: emailHtml,
@@ -103,7 +112,7 @@ export async function POST(req: Request) {
     
     return NextResponse.json({ 
       success: true, 
-      message: 'Registration successful and premium email sent!',
+      message: 'Registration successful and dynamic email sent!',
       id: newRegistration._id 
     });
   } catch (error: any) {
