@@ -49,16 +49,6 @@ export default function Home() {
                   : 'Register today to reminisce about the lost days and reconnect with old friends once again.'}
               </p>
 
-              <div className="flex flex-wrap gap-4 mb-8">
-                <div className="flex items-center gap-2.5 text-primary bg-primary/5 px-4 py-2.5 rounded-xl border border-primary/10 text-sm">
-                  <Calendar className="w-4.5 h-4.5 text-secondary" />
-                  <span className="font-bold">31 Dec, 2026</span>
-                </div>
-                <div className="flex items-center gap-2.5 text-primary bg-primary/5 px-4 py-2.5 rounded-xl border border-primary/10 text-sm">
-                  <MapPin className="w-4.5 h-4.5 text-secondary" />
-                  <span className="font-bold">Grand Ballroom, City Center</span>
-                </div>
-              </div>
 
               <div className="flex flex-col sm:flex-row gap-4">
                 <motion.button
