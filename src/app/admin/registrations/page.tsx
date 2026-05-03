@@ -94,6 +94,11 @@ const RegistrationsAdmin = () => {
     }
   };
 
+  const totalAmount = registrations.reduce((sum, reg) => sum + (reg.amount || 0), 0);
+  const approvedAmount = registrations
+    .filter(r => r.status === 'approved')
+    .reduce((sum, reg) => sum + (reg.amount || 0), 0);
+
   const filteredRegistrations = registrations.filter(r => 
     r.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
     r.phone.includes(searchTerm)
@@ -101,16 +106,31 @@ const RegistrationsAdmin = () => {
 
   return (
     <div className="space-y-8">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
+      {/* Header & Stats */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+        <div className="lg:col-span-5">
           <h1 className="text-3xl font-black text-primary mb-2">Registrations</h1>
           <p className="text-gray-500 font-bold">Manage and approve participant registrations.</p>
         </div>
-        <button className="flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-2xl font-black hover:bg-opacity-90 transition-all shadow-lg shadow-primary/10">
-          <Download className="w-4 h-4" />
-          <span>Export to Excel</span>
-        </button>
+        
+        <div className="lg:col-span-7 flex flex-wrap gap-4 justify-start lg:justify-end">
+          <div className="bg-white px-6 py-4 rounded-3xl border border-gray-100 shadow-sm flex flex-col">
+            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Total Members</span>
+            <span className="text-xl font-black text-primary">{registrations.length}</span>
+          </div>
+          <div className="bg-white px-6 py-4 rounded-3xl border border-gray-100 shadow-sm flex flex-col">
+            <span className="text-[10px] font-black text-green-400 uppercase tracking-widest">Approved Revenue</span>
+            <span className="text-xl font-black text-primary">৳ {approvedAmount.toLocaleString()}</span>
+          </div>
+          <div className="bg-primary px-6 py-4 rounded-3xl shadow-xl shadow-primary/20 flex flex-col text-white">
+            <span className="text-[10px] font-black text-secondary uppercase tracking-widest">Total Collected</span>
+            <span className="text-xl font-black">৳ {totalAmount.toLocaleString()}</span>
+          </div>
+          <button className="flex items-center gap-2 px-6 py-4 bg-gray-50 text-primary border border-gray-100 rounded-3xl font-black hover:bg-gray-100 transition-all">
+            <Download className="w-4 h-4" />
+            <span>Export</span>
+          </button>
+        </div>
       </div>
 
       {/* Filters & Search */}
@@ -135,7 +155,7 @@ const RegistrationsAdmin = () => {
               <tr className="bg-gray-50/50">
                 <th className="text-left p-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Participant</th>
                 <th className="text-left p-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Details</th>
-                <th className="text-left p-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">T-Shirt</th>
+                <th className="text-left p-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Payment</th>
                 <th className="text-left p-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">TrxID</th>
                 <th className="text-left p-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Status</th>
                 <th className="text-left p-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Actions</th>
@@ -144,7 +164,7 @@ const RegistrationsAdmin = () => {
             <tbody className="divide-y divide-gray-50">
               {loading ? (
                 <tr>
-                  <td colSpan={5} className="p-20 text-center">
+                  <td colSpan={6} className="p-20 text-center">
                     <div className="flex flex-col items-center gap-4 text-gray-400 font-bold">
                       <Loader2 className="w-10 h-10 animate-spin text-secondary" />
                       <span>Loading registrations...</span>
@@ -153,7 +173,7 @@ const RegistrationsAdmin = () => {
                 </tr>
               ) : filteredRegistrations.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="p-20 text-center text-gray-400 font-bold italic">No registrations found.</td>
+                  <td colSpan={6} className="p-20 text-center text-gray-400 font-bold italic">No registrations found.</td>
                 </tr>
               ) : filteredRegistrations.map((reg, index) => (
                 <motion.tr 
@@ -164,24 +184,34 @@ const RegistrationsAdmin = () => {
                 >
                   <td className="p-6">
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-primary/5 rounded-2xl flex items-center justify-center font-black text-primary">
-                        {reg.name.substring(0, 2).toUpperCase()}
-                      </div>
+                      {reg.photo ? (
+                        <div 
+                          className="w-12 h-12 rounded-2xl overflow-hidden cursor-pointer hover:ring-2 hover:ring-secondary transition-all"
+                          onClick={() => window.open(reg.photo, '_blank')}
+                        >
+                          <img src={reg.photo} alt={reg.name} className="w-full h-full object-cover" />
+                        </div>
+                      ) : (
+                        <div className="w-12 h-12 bg-primary/5 rounded-2xl flex items-center justify-center font-black text-primary">
+                          {reg.name.substring(0, 2).toUpperCase()}
+                        </div>
+                      )}
                       <div>
                         <p className="font-black text-primary">{reg.name}</p>
-                        <p className="text-xs font-bold text-gray-400">{reg.email}</p>
+                        <p className="text-[10px] font-black text-secondary uppercase tracking-tight">{reg.tshirtSize} Size | {reg.section}-{reg.department}</p>
                       </div>
                     </div>
                   </td>
                   <td className="p-6">
                     <p className="text-sm font-bold text-gray-600">{reg.phone}</p>
-                    <p className="text-[10px] font-black text-secondary uppercase tracking-tight">{reg.section} | {reg.department}</p>
+                    <p className="text-xs font-bold text-gray-400">{reg.email}</p>
                   </td>
                   <td className="p-6">
-                    <span className="px-3 py-1 bg-gray-100 text-gray-600 rounded-lg text-xs font-black">{reg.tshirtSize}</span>
+                    <p className="font-black text-primary">৳ {reg.amount?.toLocaleString()}</p>
+                    <p className="text-[10px] font-black text-secondary uppercase tracking-widest">{reg.paymentOption}</p>
                   </td>
                   <td className="p-6">
-                    <span className="font-black text-secondary text-xs uppercase">{reg.transactionId || 'N/A'}</span>
+                    <span className="font-black text-gray-500 text-xs uppercase">{reg.transactionId || 'N/A'}</span>
                   </td>
                   <td className="p-6">
                     <div className="flex items-center gap-2">
