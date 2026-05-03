@@ -114,9 +114,10 @@ const EventDetailPage = () => {
             <h2 className="text-3xl font-bold text-primary mb-6">
               {language === 'bn' ? 'ইভেন্ট সম্পর্কে' : 'About this Event'}
             </h2>
-            <p className="text-gray-600 text-lg leading-relaxed mb-10 whitespace-pre-line">
-              {event.description || 'No description available for this event.'}
-            </p>
+            <div 
+              className="text-gray-600 text-lg leading-relaxed mb-10 prose prose-primary max-w-none"
+              dangerouslySetInnerHTML={{ __html: event.description || 'No description available for this event.' }}
+            />
 
             <h3 className="text-2xl font-bold text-primary mb-6">
               {language === 'bn' ? 'আপনি যা যা পাবেন' : 'What is included'}
@@ -168,14 +169,33 @@ const EventDetailPage = () => {
 
               {event.isOpen ? (
                 <div className="space-y-4">
-                  <button className="w-full py-5 bg-secondary text-white rounded-[1.5rem] font-bold text-lg hover:bg-opacity-90 transition-all flex items-center justify-center gap-3 shadow-xl shadow-secondary/20">
-                    <Ticket className="w-5 h-5" />
-                    <span>{language === 'bn' ? 'টিকিট কিনুন' : 'Book Your Spot'}</span>
+                  <button 
+                    onClick={() => router.push('/register')}
+                    className="w-full py-5 bg-secondary text-white rounded-[1.5rem] font-bold text-lg hover:bg-opacity-90 transition-all flex items-center justify-center gap-3 shadow-xl shadow-secondary/20"
+                  >
+                    <CheckCircle2 className="w-5 h-5" />
+                    <span>{language === 'bn' ? 'রেজিস্ট্রেশন করুন' : 'Register Now'}</span>
                   </button>
-                  <button className="w-full py-5 bg-white text-primary border-2 border-primary/10 rounded-[1.5rem] font-bold text-lg hover:bg-gray-50 transition-all flex items-center justify-center gap-3">
-                    <Share2 className="w-5 h-5" />
-                    <span>{language === 'bn' ? 'শেয়ার করুন' : 'Share Event'}</span>
-                  </button>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button 
+                      onClick={() => {
+                        const url = window.location.href;
+                        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank');
+                      }}
+                      className="py-4 bg-blue-600 text-white rounded-2xl font-bold text-sm hover:bg-opacity-90 transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-600/10"
+                    >
+                      <span>Facebook</span>
+                    </button>
+                    <button 
+                      onClick={() => {
+                        const url = window.location.href;
+                        window.open(`https://wa.me/?text=${encodeURIComponent('Join us at ' + event.title + ': ' + url)}`, '_blank');
+                      }}
+                      className="py-4 bg-green-500 text-white rounded-2xl font-bold text-sm hover:bg-opacity-90 transition-all flex items-center justify-center gap-2 shadow-lg shadow-green-500/10"
+                    >
+                      <span>WhatsApp</span>
+                    </button>
+                  </div>
                 </div>
               ) : (
                 <div className="p-6 bg-red-50 rounded-[1.5rem] text-center">
