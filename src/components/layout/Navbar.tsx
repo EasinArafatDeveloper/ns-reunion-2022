@@ -6,9 +6,11 @@ import { useLanguage } from '@/components/providers/LanguageProvider';
 import { Menu, X, Globe } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePathname } from 'next/navigation';
+import { useNotifications } from '@/components/providers/NotificationProvider';
 
 const Navbar = () => {
   const { language, setLanguage, t } = useLanguage();
+  const { hasUnread, markAsRead } = useNotifications();
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
@@ -53,13 +55,17 @@ const Navbar = () => {
               <Link
                 key={link.name}
                 href={link.href}
-                className={`font-bold transition-all ${
+                onClick={() => link.href === '/notices' && markAsRead()}
+                className={`font-bold transition-all relative ${
                   pathname === link.href 
                     ? ((pathname.startsWith('/events') || pathname.startsWith('/notices')) && !scrolled ? 'text-secondary' : 'text-primary')
                     : ((pathname.startsWith('/events') || pathname.startsWith('/notices')) && !scrolled ? 'text-white/80 hover:text-white' : 'text-gray-600 hover:text-primary')
                 }`}
               >
                 {link.name}
+                {link.href === '/notices' && hasUnread && (
+                  <span className="absolute -top-1 -right-2 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white animate-pulse" />
+                )}
               </Link>
             ))}
             
@@ -111,10 +117,16 @@ const Navbar = () => {
                 <Link
                   key={link.name}
                   href={link.href}
-                  className="block px-3 py-4 text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-lg"
-                  onClick={() => setIsOpen(false)}
+                  className="px-3 py-4 text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-lg flex items-center justify-between"
+                  onClick={() => {
+                    setIsOpen(false);
+                    if (link.href === '/notices') markAsRead();
+                  }}
                 >
-                  {link.name}
+                  <span>{link.name}</span>
+                  {link.href === '/notices' && hasUnread && (
+                    <span className="w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse mr-2" />
+                  )}
                 </Link>
               ))}
             </div>
