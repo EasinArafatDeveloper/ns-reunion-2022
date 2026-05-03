@@ -6,10 +6,23 @@ import { motion } from "framer-motion";
 import Countdown from "@/components/ui/Countdown";
 import { ArrowRight, Sparkles, Calendar, MapPin } from "lucide-react";
 import Gallery from "@/components/sections/Gallery";
+import FeaturedEvent from "@/components/sections/FeaturedEvent";
 import Link from "next/link";
+import { useState, useEffect } from "react";
+import { getPublicStats } from "@/actions/stats";
+import { Loader2 } from "lucide-react";
 
 export default function Home() {
   const { t, language } = useLanguage();
+  const [memberCount, setMemberCount] = useState<number | null>(null);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      const data = await getPublicStats();
+      setMemberCount(data.registeredMembers);
+    };
+    fetchStats();
+  }, []);
 
   return (
     <main className={`min-h-screen ${language === 'bn' ? 'font-bengali' : 'font-sans'}`}>
@@ -101,7 +114,13 @@ export default function Home() {
                   <p className="text-xs font-medium opacity-80 uppercase tracking-widest mb-1">
                     {language === 'bn' ? 'অংশগ্রহণকারী সংখ্যা' : 'Registered Members'}
                   </p>
-                  <p className="text-3xl font-black">1,240+</p>
+                  <p className="text-3xl font-black flex justify-center items-center h-9">
+                    {memberCount === null ? (
+                      <Loader2 className="w-6 h-6 animate-spin text-white/80" />
+                    ) : (
+                      `${memberCount}+`
+                    )}
+                  </p>
                 </div>
               </div>
             </motion.div>
@@ -109,6 +128,8 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <FeaturedEvent />
 
       <Gallery />
 

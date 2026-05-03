@@ -11,17 +11,16 @@ import {
   Save,
   Loader2,
   Image as ImageIcon,
-  Grid
 } from 'lucide-react';
 
 const GalleryAdmin = () => {
   const [images, setImages] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isUploading, setIsUploading] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [selectedFiles, setSelectedFiles] = useState<any[]>([]); // Array of { title, image }
   const [formData, setFormData] = useState({
-    title: '',
     category: 'REUNION 2022',
-    image: '',
   });
 
   const fetchImages = async () => {
@@ -41,41 +40,62 @@ const GalleryAdmin = () => {
   }, []);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      if (file.size > 2 * 1024 * 1024) {
-        Swal.fire('Error', 'Image size should be less than 2MB', 'error');
-        return;
-      }
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData({ ...formData, image: reader.result as string });
-      };
-      reader.readAsDataURL(file);
+    const files = e.target.files;
+    if (files) {
+      Array.from(files).forEach(file => {
+        if (file.size > 2 * 1024 * 1024) {
+          Swal.fire('Error', `Image ${file.name} size should be less than 2MB`, 'error');
+          return;
+        }
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setSelectedFiles(prev => [...prev, { title: file.name.split('.')[0], image: reader.result as string }]);
+        };
+        reader.readAsDataURL(file);
+      });
     }
+  };
+
+  const removeSelectedFile = (index: number) => {
+    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const updateSelectedTitle = (index: number, newTitle: string) => {
+    setSelectedFiles(prev => prev.map((item, i) => i === index ? { ...item, title: newTitle } : item));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.image) {
-      Swal.fire('Error', 'Please select an image', 'error');
+    if (selectedFiles.length === 0) {
+      Swal.fire('Error', 'Please select at least one image', 'error');
       return;
     }
 
+    setIsUploading(true);
+    let successCount = 0;
+
     try {
-      const res = await fetch('/api/admin/gallery', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      });
-      if (res.ok) {
-        Swal.fire('Success', 'Photo added to gallery!', 'success');
-        setShowModal(false);
-        setFormData({ title: '', category: 'REUNION 2022', image: '' });
-        fetchImages();
+      for (const file of selectedFiles) {
+        const res = await fetch('/api/admin/gallery', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title: file.title || 'Gallery Image',
+            category: formData.category,
+            image: file.image
+          })
+        });
+        if (res.ok) successCount++;
       }
+
+      Swal.fire('Success', `${successCount} photo(s) added to gallery!`, 'success');
+      setShowModal(false);
+      setSelectedFiles([]);
+      fetchImages();
     } catch (error) {
-      Swal.fire('Error', 'Something went wrong', 'error');
+      Swal.fire('Error', 'Something went wrong during upload', 'error');
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -103,11 +123,11 @@ const GalleryAdmin = () => {
           <p className="text-gray-500 font-bold">Manage your reunion memories and event photos.</p>
         </div>
         <button 
-          onClick={() => { setFormData({ title: '', category: 'REUNION 2022', image: '' }); setShowModal(true); }}
+          onClick={() => { setSelectedFiles([]); setFormData({ category: 'REUNION 2022' }); setShowModal(true); }}
           className="flex items-center gap-2 px-6 py-3 bg-secondary text-primary rounded-2xl font-black hover:bg-opacity-90 transition-all shadow-xl shadow-secondary/20"
         >
           <Plus className="w-5 h-5" />
-          <span>Add New Photo</span>
+          <span>Add Photos</span>
         </button>
       </div>
 
@@ -152,42 +172,70 @@ const GalleryAdmin = () => {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
-              className="bg-white w-full max-w-lg rounded-[3rem] p-8 shadow-2xl relative"
+              className="bg-white w-full max-w-2xl rounded-[3rem] p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto"
             >
               <button onClick={() => setShowModal(false)} className="absolute top-6 right-6 p-2 text-gray-400 hover:text-primary transition-colors">
                 <X className="w-6 h-6" />
               </button>
-              <h2 className="text-2xl font-black text-primary mb-8">Add Photo</h2>
+              <h2 className="text-2xl font-black text-primary mb-8">Add Photos</h2>
               
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Photo Title</label>
-                  <input value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} required className="w-full px-5 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl outline-none font-bold" placeholder="e.g. Group Photo" />
+                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Default Category</label>
+                  <input value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})} required className="w-full px-5 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl outline-none font-bold" />
                 </div>
                 
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Upload Photo</label>
+                <div className="space-y-4">
+                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Upload Photos (Multiple Allowed)</label>
                   <div className="relative group">
-                    <input type="file" accept="image/*" onChange={handleFileChange} className="absolute inset-0 opacity-0 cursor-pointer z-10" />
-                    {formData.image ? (
-                      <div className="relative rounded-2xl overflow-hidden aspect-video">
-                        <img src={formData.image} className="w-full h-full object-cover" />
-                        <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                          <Camera className="w-8 h-8 text-white" />
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="w-full px-5 py-12 bg-gray-50 border-2 border-dashed border-gray-200 rounded-[1.2rem] flex flex-col items-center justify-center gap-3 text-gray-400 group-hover:border-primary transition-all">
-                        <Camera className="w-8 h-8" />
-                        <span className="font-bold uppercase text-[10px] tracking-widest">Select Image File</span>
-                      </div>
-                    )}
+                    <input type="file" accept="image/*" multiple onChange={handleFileChange} className="absolute inset-0 opacity-0 cursor-pointer z-10" />
+                    <div className="w-full px-5 py-8 bg-gray-50 border-2 border-dashed border-gray-200 rounded-[1.2rem] flex flex-col items-center justify-center gap-3 text-gray-400 group-hover:border-primary transition-all">
+                      <Camera className="w-8 h-8" />
+                      <span className="font-bold uppercase text-[10px] tracking-widest">Select Image Files</span>
+                    </div>
                   </div>
+
+                  {/* Previews */}
+                  {selectedFiles.length > 0 && (
+                    <div className="grid grid-cols-2 gap-4 mt-6">
+                      {selectedFiles.map((file, idx) => (
+                        <div key={idx} className="relative group/item bg-gray-50 rounded-2xl p-2 border border-gray-100">
+                          <img src={file.image} className="w-full aspect-video object-cover rounded-xl mb-2" />
+                          <input 
+                            value={file.title} 
+                            onChange={e => updateSelectedTitle(idx, e.target.value)}
+                            className="w-full px-2 py-1 text-xs font-bold bg-transparent outline-none border-b border-transparent focus:border-primary/20"
+                            placeholder="Image title"
+                          />
+                          <button 
+                            type="button"
+                            onClick={() => removeSelectedFile(idx)}
+                            className="absolute -top-2 -right-2 p-1.5 bg-red-500 text-white rounded-full opacity-0 group-hover/item:opacity-100 transition-opacity shadow-lg"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
-                <button type="submit" className="w-full py-5 bg-primary text-white rounded-[1.5rem] font-black text-xl flex items-center justify-center gap-3 shadow-xl shadow-primary/10">
-                  <Save className="w-5 h-5 text-secondary" />
-                  <span>Upload to Gallery</span>
+                <button 
+                  type="submit" 
+                  disabled={isUploading || selectedFiles.length === 0}
+                  className="w-full py-5 bg-primary text-white rounded-[1.5rem] font-black text-xl flex items-center justify-center gap-3 shadow-xl shadow-primary/10 disabled:opacity-50"
+                >
+                  {isUploading ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      <span>Uploading...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Save className="w-5 h-5 text-secondary" />
+                      <span>Upload {selectedFiles.length} Photo(s)</span>
+                    </>
+                  )}
                 </button>
               </form>
             </motion.div>

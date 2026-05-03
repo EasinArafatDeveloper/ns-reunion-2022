@@ -1,48 +1,68 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Navbar from '@/components/layout/Navbar';
 import { useLanguage } from '@/components/providers/LanguageProvider';
 import { motion } from 'framer-motion';
-import { Calendar, MapPin, Clock, ArrowLeft, Share2, Users, CheckCircle2, Ticket } from 'lucide-react';
+import { Calendar, MapPin, Clock, ArrowLeft, Share2, Users, CheckCircle2, Ticket, Loader2 } from 'lucide-react';
+import { getEventById } from '@/actions/events';
+import { getPublicStats } from '@/actions/stats';
 
 const EventDetailPage = () => {
   const { id } = useParams();
   const router = useRouter();
   const { language } = useLanguage();
 
-  // In a real app, you would fetch this from an API/Database
-  const eventData: any = {
-    'main-reunion-2026': {
-      title: language === 'bn' ? 'মেইন রিইউনিয়ন ২০২২' : 'Main Reunion 2022',
-      date: 'Dec 31, 2026',
-      time: '06:00 PM - 10:00 PM',
-      location: 'Grand Ballroom, City Center',
-      category: 'REUNION',
-      image: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?q=80&w=1200&auto=format&fit=crop',
-      description: language === 'bn' 
-        ? 'এনএস ইউনিটি ফোরামের সবচেয়ে বড় আয়োজন! এই ইভেন্টে আমরা আমাদের হারিয়ে যাওয়া দিনগুলোর স্মৃতি রোমন্থন করবো এবং পুরোনো বন্ধুদের সাথে নতুন করে সখ্যতা গড়ে তুলবো। সাংস্কৃতিক সন্ধ্যা, ডিনার এবং বিশেষ সম্মাননা প্রদান অনুষ্ঠানের মাধ্যমে এই রাতটিকে স্মরণীয় করে রাখা হবে।'
-        : 'The biggest event of NS Unity Forum! In this event, we will reminisce about our lost days and build new friendships with old friends. The night will be made memorable through a cultural evening, dinner, and a special awards ceremony.',
-      isOpen: true,
-      perks: language === 'bn' ? ['গ্র্যান্ড ডিনার', 'সাংস্কৃতিক সন্ধ্যা', 'টি-শার্ট ও গিফট', 'ফটো সেশন'] : ['Grand Dinner', 'Cultural Night', 'T-shirt & Gifts', 'Photo Session']
-    },
-    'pre-reunion-2025': {
-      title: language === 'bn' ? 'প্রি-রিইউনিয়ন মিটআপ' : 'Pre-Reunion Meetup',
-      date: 'June 09, 2025',
-      time: '04:00 PM - 07:00 PM',
-      location: 'University Cafe',
-      category: 'MEETUP',
-      image: 'https://images.unsplash.com/photo-1528605248644-14dd04022da1?q=80&w=1200&auto=format&fit=crop',
-      description: language === 'bn' 
-        ? 'মূল ইভেন্টের আগে আমাদের ছোট একটি গেট-টুগেদার। এখানে আমরা ভবিষ্যতের বড় আয়োজনের রূপরেখা নিয়ে আলোচনা করেছি এবং দীর্ঘ বিরতির পর একে অপরের সাথে দেখা করেছি।'
-        : 'A small get-together before the main event. Here we discussed the outline of the future mega event and met each other after a long break.',
-      isOpen: false,
-      perks: language === 'bn' ? ['স্ন্যাকস ও কফি', 'নেটওয়ার্কিং', 'গ্রুপ ফটো'] : ['Snacks & Coffee', 'Networking', 'Group Photo']
-    }
-  };
+  const [event, setEvent] = useState<any>(null);
+  const [memberCount, setMemberCount] = useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const event = eventData[id as string] || eventData['main-reunion-2026'];
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const fetchedEvent = await getEventById(id as string);
+        setEvent(fetchedEvent);
+        
+        const stats = await getPublicStats();
+        setMemberCount(stats.registeredMembers);
+      } catch (error) {
+        console.error("Error fetching event details:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    if (id) {
+      fetchData();
+    }
+  }, [id]);
+
+  if (loading) {
+    return (
+      <main className={`min-h-screen bg-white ${language === 'bn' ? 'font-bengali' : 'font-sans'} flex items-center justify-center`}>
+        <Navbar />
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="w-12 h-12 text-secondary animate-spin" />
+          <p className="text-gray-500 font-bold">Loading event details...</p>
+        </div>
+      </main>
+    );
+  }
+
+  if (!event) {
+    return (
+      <main className={`min-h-screen bg-white ${language === 'bn' ? 'font-bengali' : 'font-sans'} flex items-center justify-center`}>
+        <Navbar />
+        <div className="text-center">
+          <h1 className="text-4xl font-black text-primary mb-4">Event Not Found</h1>
+          <button onClick={() => router.push('/events')} className="px-6 py-3 bg-secondary text-white rounded-xl font-bold">Go Back</button>
+        </div>
+      </main>
+    );
+  }
+
+  const perks = event.perks || (language === 'bn' ? ['গ্র্যান্ড ডিনার', 'সাংস্কৃতিক সন্ধ্যা', 'টি-শার্ট ও গিফট', 'ফটো সেশন'] : ['Grand Dinner', 'Cultural Night', 'T-shirt & Gifts', 'Photo Session']);
 
   return (
     <main className={`min-h-screen bg-white ${language === 'bn' ? 'font-bengali' : 'font-sans'}`}>
@@ -51,7 +71,7 @@ const EventDetailPage = () => {
       {/* Hero Section with Backdrop */}
       <div className="relative h-[60vh] min-h-[400px] w-full overflow-hidden">
         <img 
-          src={event.image} 
+          src={event.image || 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?q=80&w=1200&auto=format&fit=crop'} 
           alt={event.title}
           className="absolute inset-0 w-full h-full object-cover"
         />
@@ -75,7 +95,7 @@ const EventDetailPage = () => {
               transition={{ delay: 0.2 }}
             >
               <span className="px-4 py-1.5 bg-secondary text-white rounded-full text-xs font-black tracking-widest uppercase mb-4 inline-block">
-                {event.category}
+                {event.category || 'EVENT'}
               </span>
               <h1 className="text-4xl md:text-6xl font-black text-white mb-6 leading-tight max-w-4xl">
                 {event.title}
@@ -95,14 +115,14 @@ const EventDetailPage = () => {
               {language === 'bn' ? 'ইভেন্ট সম্পর্কে' : 'About this Event'}
             </h2>
             <p className="text-gray-600 text-lg leading-relaxed mb-10 whitespace-pre-line">
-              {event.description}
+              {event.description || 'No description available for this event.'}
             </p>
 
             <h3 className="text-2xl font-bold text-primary mb-6">
               {language === 'bn' ? 'আপনি যা যা পাবেন' : 'What is included'}
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-12">
-              {event.perks.map((perk: string, index: number) => (
+              {perks.map((perk: string, index: number) => (
                 <div key={index} className="flex items-center gap-3 p-4 bg-gray-50 rounded-2xl border border-gray-100">
                   <CheckCircle2 className="w-5 h-5 text-secondary" />
                   <span className="font-semibold text-gray-700">{perk}</span>
@@ -168,7 +188,11 @@ const EventDetailPage = () => {
               <div className="mt-8 pt-8 border-t border-gray-100 flex items-center justify-center gap-2 text-gray-400">
                 <Users className="w-4 h-4" />
                 <span className="text-xs font-semibold uppercase tracking-tighter">
-                  {language === 'bn' ? '১,২৪০+ জন অংশগ্রহণ করছেন' : '1,240+ People attending'}
+                  {memberCount === null ? (
+                    <Loader2 className="w-4 h-4 animate-spin inline mr-2" />
+                  ) : (
+                    language === 'bn' ? `${memberCount}+ জন অংশগ্রহণ করছেন` : `${memberCount}+ People attending`
+                  )}
                 </span>
               </div>
             </div>

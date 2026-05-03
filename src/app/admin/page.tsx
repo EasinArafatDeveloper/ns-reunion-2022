@@ -1,22 +1,43 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
   Users, 
   CreditCard, 
   Calendar, 
   CheckCircle2, 
-  Clock 
+  Clock,
+  Loader2
 } from 'lucide-react';
+import { getDashboardStats } from '@/actions/stats';
 
 const AdminDashboard = () => {
+  const [statsData, setStatsData] = useState({
+    total: 0,
+    revenue: 0,
+    approved: 0,
+    pending: 0
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      const data = await getDashboardStats();
+      setStatsData(data);
+      setLoading(false);
+    };
+    fetchStats();
+  }, []);
+
   const stats = [
-    { label: 'Total Registrations', value: '1,248', icon: Users, color: 'bg-blue-500' },
-    { label: 'Total Revenue', value: '৳ 62,400', icon: CreditCard, color: 'bg-green-500' },
-    { label: 'Approved', value: '942', icon: CheckCircle2, color: 'bg-emerald-500' },
-    { label: 'Pending Approval', value: '106', icon: Clock, color: 'bg-orange-500' },
+    { label: 'Total Registrations', value: loading ? <Loader2 className="animate-spin w-8 h-8 text-primary" /> : statsData.total, icon: Users, color: 'bg-blue-500' },
+    { label: 'Total Revenue', value: loading ? <Loader2 className="animate-spin w-8 h-8 text-primary" /> : `৳ ${statsData.revenue.toLocaleString()}`, icon: CreditCard, color: 'bg-green-500' },
+    { label: 'Approved', value: loading ? <Loader2 className="animate-spin w-8 h-8 text-primary" /> : statsData.approved, icon: CheckCircle2, color: 'bg-emerald-500' },
+    { label: 'Pending Approval', value: loading ? <Loader2 className="animate-spin w-8 h-8 text-primary" /> : statsData.pending, icon: Clock, color: 'bg-orange-500' },
   ];
+
+  const today = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }).toUpperCase();
 
   return (
     <div className="space-y-12">
@@ -31,7 +52,7 @@ const AdminDashboard = () => {
         <div className="hidden md:flex flex-col items-end">
           <div className="bg-primary text-white px-6 py-4 rounded-3xl flex items-center gap-3 shadow-xl shadow-primary/20">
             <Calendar className="w-6 h-6 text-secondary" />
-            <span className="font-black text-xl">APRIL 29, 2026</span>
+            <span className="font-black text-xl">{today}</span>
           </div>
         </div>
       </div>

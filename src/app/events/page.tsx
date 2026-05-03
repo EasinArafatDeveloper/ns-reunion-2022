@@ -29,11 +29,29 @@ const EventsPage = () => {
   }, []);
 
   const currentEvents = events.filter(event => {
-    // Basic logic for demo: events before today are past, after are upcoming
-    // In a real scenario, you might have an isPast field or compare dates
-    const eventDate = new Date(event.date);
+    if (!event.date) return false;
+
+    // Get today's date in YYYY-MM-DD format (local time)
     const today = new Date();
-    return activeTab === 'upcoming' ? eventDate >= today : eventDate < today;
+    const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    
+    // Ensure event date is in YYYY-MM-DD for comparison
+    // If it's already YYYY-MM-DD (from admin panel), it stays as is
+    // If it's a different format, we try to normalize it
+    let eventDateStr = event.date;
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(event.date)) {
+      try {
+        const d = new Date(event.date);
+        if (!isNaN(d.getTime())) {
+          eventDateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        }
+      } catch (e) {
+        console.error("Invalid date format:", event.date);
+      }
+    }
+
+    const isUpcoming = eventDateStr >= todayStr;
+    return activeTab === 'upcoming' ? isUpcoming : !isUpcoming;
   });
 
   return (
