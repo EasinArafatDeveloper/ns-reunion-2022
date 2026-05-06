@@ -174,14 +174,42 @@ const RegisterPage = () => {
                 </div>
                 <div>
                   <label className={labelClasses}>{language === 'bn' ? 'ছবি আপলোড' : 'Photo Upload'}</label>
-                  <div className="relative group">
-                    <input type="file" required accept="image/*" onChange={handleFileChange} className="absolute inset-0 opacity-0 cursor-pointer z-10" />
-                    <div className={`w-full px-5 py-4 bg-gray-50 border-2 border-dashed ${formData.photo ? 'border-green-400' : 'border-gray-200'} rounded-[1.2rem] flex items-center justify-center gap-3 text-gray-400 group-hover:border-primary transition-all`}>
-                      <Camera className={`w-5 h-5 ${formData.photo ? 'text-green-500' : ''}`} />
-                      <span className={`font-bold ${formData.photo ? 'text-green-600' : ''}`}>
-                        {formData.photo ? (language === 'bn' ? 'ছবি নির্বাচন করা হয়েছে' : 'Photo Selected') : (language === 'bn' ? 'ছবি নির্বাচন করুন' : 'Choose Photo')}
-                      </span>
-                    </div>
+                  <div className="relative">
+                    {formData.photo ? (
+                      <div className="relative w-full h-44 bg-gray-50 border-2 border-dashed border-green-400 rounded-[1.2rem] overflow-hidden flex items-center justify-center group/preview">
+                        <img src={formData.photo} alt="Preview" className="w-full h-full object-cover transition-all duration-300 group-hover/preview:scale-105" />
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/preview:opacity-100 transition-all flex flex-col items-center justify-center text-white gap-2 cursor-pointer">
+                          <Camera className="w-6 h-6 animate-pulse text-white" />
+                          <span className="font-bold text-sm text-white">
+                            {language === 'bn' ? 'ছবি পরিবর্তন করুন' : 'Change Photo'}
+                          </span>
+                        </div>
+                        <input type="file" accept="image/*" onChange={handleFileChange} className="absolute inset-0 opacity-0 cursor-pointer z-10" />
+                        <button 
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            setFormData({ ...formData, photo: '' });
+                          }}
+                          className="absolute top-3 right-3 p-2 bg-red-500 hover:bg-red-600 text-white rounded-full shadow-lg hover:scale-110 active:scale-95 transition-all z-20"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4.5 w-4.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="relative group">
+                        <input type="file" required accept="image/*" onChange={handleFileChange} className="absolute inset-0 opacity-0 cursor-pointer z-10" />
+                        <div className="w-full px-5 py-4 bg-gray-50 border-2 border-dashed border-gray-200 rounded-[1.2rem] flex items-center justify-center gap-3 text-gray-400 group-hover:border-primary transition-all">
+                          <Camera className="w-5 h-5" />
+                          <span className="font-bold">
+                            {language === 'bn' ? 'ছবি নির্বাচন করুন' : 'Choose Photo'}
+                          </span>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
