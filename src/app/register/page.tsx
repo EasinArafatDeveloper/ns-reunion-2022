@@ -58,8 +58,16 @@ const RegisterPage = () => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 2 * 1024 * 1024) { // 2MB limit
-        Swal.fire('Error', 'Image size should be less than 2MB', 'error');
+      if (file.size > 4 * 1024 * 1024) { // 4MB limit
+        Swal.fire({
+          icon: 'error',
+          title: language === 'bn' ? 'ছবির সাইজ অনেক বড়!' : 'Image Size Too Large!',
+          text: language === 'bn' 
+            ? 'অনুগ্রহ করে ৪ মেগাবাইট (4MB) এর চেয়ে ছোট সাইজের ছবি আপলোড করুন।' 
+            : 'Please upload an image smaller than 4MB in size.',
+          confirmButtonColor: '#1a1a54',
+          customClass: { popup: 'rounded-[2rem]' }
+        });
         return;
       }
       const reader = new FileReader();
