@@ -443,6 +443,21 @@ const RegistrationsAdmin = () => {
                   </div>
                 </div>
 
+                {/* Travel & Route Information */}
+                <div>
+                  <h4 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-3">Travel & Route Information</h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="bg-gray-50 p-4 rounded-2xl">
+                      <p className="text-[10px] text-gray-400 font-bold uppercase">Pickup Location</p>
+                      <p className="font-bold text-primary text-sm">{selectedReg.pickupLocation || 'Not Specified'}</p>
+                    </div>
+                    <div className="bg-gray-50 p-4 rounded-2xl">
+                      <p className="text-[10px] text-gray-400 font-bold uppercase">Dropping Location</p>
+                      <p className="font-bold text-primary text-sm">{selectedReg.droppingLocation || 'Not Specified'}</p>
+                    </div>
+                  </div>
+                </div>
+
                 {selectedReg.comment && (
                   <div className="bg-orange-50/50 border border-orange-100 p-5 rounded-2xl">
                     <p className="text-[10px] text-orange-600 font-black uppercase tracking-wider mb-1">Comment / Note</p>

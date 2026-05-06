@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Navbar from '@/components/layout/Navbar';
 import { useLanguage } from '@/components/providers/LanguageProvider';
 import { motion } from 'framer-motion';
-import { User, Mail, Phone, Camera, BookOpen, Briefcase, Ruler, CreditCard, Send, Loader2, AlertCircle } from 'lucide-react';
+import { User, Mail, Phone, Camera, BookOpen, Briefcase, Ruler, CreditCard, Send, Loader2, AlertCircle, MapPin } from 'lucide-react';
 import Swal from 'sweetalert2';
 
 const RegisterPage = () => {
@@ -32,7 +32,9 @@ const RegisterPage = () => {
     paymentOption: '', // Set to empty initially
     transactionId: '',
     comment: '',
-    photo: '' // Base64 string
+    photo: '', // Base64 string
+    pickupLocation: '',
+    droppingLocation: ''
   });
 
   React.useEffect(() => {
@@ -124,7 +126,8 @@ const RegisterPage = () => {
         setFormData({
           name: '', email: '', phone: '', section: '', department: '', code: '',
           institute: '', currentSection: '', currentDepartment: '', occupation: '',
-          tshirtSize: '', amount: '', paymentOption: '', transactionId: '', comment: '', photo: ''
+          tshirtSize: '', amount: '', paymentOption: '', transactionId: '', comment: '', photo: '',
+          pickupLocation: '', droppingLocation: ''
         });
       } else {
         throw new Error(result.message);
@@ -270,6 +273,20 @@ const RegisterPage = () => {
                     <option value="XL">XL</option>
                     <option value="XXL">XXL</option>
                   </select>
+                </div>
+              </div>
+            </section>
+
+            <section>
+              <div className="flex items-center gap-3 mb-8"><div className="p-3 bg-primary/5 rounded-2xl text-secondary"><MapPin className="w-6 h-6" /></div><h2 className="text-2xl font-bold text-primary">{language === 'bn' ? 'ভ্রমণ ও যাতায়াত' : 'Travel & Route'}</h2></div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className={labelClasses}>{language === 'bn' ? 'পিকআপ লোকেশন (কোথা থেকে উঠবেন)' : 'Pickup Location (Where to board)'}</label>
+                  <input type="text" required value={formData.pickupLocation} onChange={e => setFormData({...formData, pickupLocation: e.target.value})} placeholder={language === 'bn' ? 'যেমন: ঢাকা, বরিশাল, কুয়াকাটা' : 'e.g., Dhaka, Barishal, Kuakata'} className={inputClasses} />
+                </div>
+                <div>
+                  <label className={labelClasses}>{language === 'bn' ? 'ড্রপিং লোকেশন (কোথায় নামবেন)' : 'Dropping Location (Where to deboard)'}</label>
+                  <input type="text" required value={formData.droppingLocation} onChange={e => setFormData({...formData, droppingLocation: e.target.value})} placeholder={language === 'bn' ? 'যেমন: বরিশাল, কুয়াকাটা, ঢাকা' : 'e.g., Barishal, Kuakata, Dhaka'} className={inputClasses} />
                 </div>
               </div>
             </section>

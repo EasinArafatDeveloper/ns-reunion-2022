@@ -16,6 +16,8 @@ const RegistrationSchema = new Schema({
   amount: { type: Number, required: true },
   paymentOption: { type: String, required: true }, // Bkash, Nagad
   transactionId: { type: String, required: true }, // TrxID from payment
+  pickupLocation: { type: String },
+  droppingLocation: { type: String },
   comment: { type: String },
   status: { type: String, default: 'pending' }, // pending, approved, rejected
   createdAt: { type: Date, default: Date.now },
