@@ -76,10 +76,7 @@ const NoticesPage = () => {
                       <span className="flex items-center gap-1.5 text-secondary text-xs font-bold bg-secondary/5 px-3 py-1 rounded-full"><Calendar className="w-3.5 h-3.5" />{notice.date}</span>
                       <span className="text-gray-400 text-xs font-bold uppercase tracking-widest">{notice.category}</span>
                     </div>
-                    <h3 className="text-2xl font-bold text-primary mb-3 group-hover:text-primary transition-colors">{notice.title}</h3>
-                    <p className="text-gray-500 font-medium leading-relaxed max-w-3xl">
-                      {truncateText(notice.description, 150)}
-                    </p>
+                    <h3 className="text-2xl font-bold text-primary mb-0 group-hover:text-primary transition-colors">{notice.title}</h3>
                   </div>
                   <div className="flex gap-3 w-full md:w-auto">
                     <button 
