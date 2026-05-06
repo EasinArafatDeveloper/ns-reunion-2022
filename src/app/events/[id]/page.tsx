@@ -176,26 +176,52 @@ const EventDetailPage = () => {
                     <CheckCircle2 className="w-5 h-5" />
                     <span>{language === 'bn' ? 'রেজিস্ট্রেশন করুন' : 'Register Now'}</span>
                   </button>
-                  <div className="grid grid-cols-2 gap-3">
-                    <button 
-                      onClick={() => {
-                        const url = window.location.href;
-                        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank');
-                      }}
-                      className="py-4 bg-blue-600 text-white rounded-2xl font-bold text-sm hover:bg-opacity-90 transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-600/10"
-                    >
-                      <span>Facebook</span>
-                    </button>
-                    <button 
-                      onClick={() => {
-                        const url = window.location.href;
-                        window.open(`https://wa.me/?text=${encodeURIComponent('Join us at ' + event.title + ': ' + url)}`, '_blank');
-                      }}
-                      className="py-4 bg-green-500 text-white rounded-2xl font-bold text-sm hover:bg-opacity-90 transition-all flex items-center justify-center gap-2 shadow-lg shadow-green-500/10"
-                    >
-                      <span>WhatsApp</span>
-                    </button>
-                  </div>
+                  <button 
+                    onClick={async () => {
+                      const shareData = {
+                        title: event.title,
+                        text: language === 'bn' 
+                          ? `স্মৃতির কুয়াকাটা - ${event.title} রিইউনিয়ন অনুষ্ঠানে যোগ দিন!` 
+                          : `Join us at ${event.title} Reunion Event!`,
+                        url: window.location.href
+                      };
+                      
+                      if (navigator.share) {
+                        try {
+                          await navigator.share(shareData);
+                        } catch (err) {
+                          console.log('Error sharing:', err);
+                        }
+                      } else {
+                        try {
+                          await navigator.clipboard.writeText(window.location.href);
+                          const Swal = (await import('sweetalert2')).default;
+                          Swal.fire({
+                            icon: 'success',
+                            title: language === 'bn' ? 'লিংক কপি করা হয়েছে!' : 'Link copied!',
+                            text: language === 'bn' 
+                              ? 'ইভেন্ট লিংক কপি করা হয়েছে। এখন এটি বন্ধুদের সাথে মেসেঞ্জার বা হোয়াটসঅ্যাপে শেয়ার করুন।' 
+                              : 'Event link copied to clipboard. Share it with your friends on Messenger or WhatsApp!',
+                            timer: 3000,
+                            timerProgressBar: true,
+                            showConfirmButton: false,
+                            toast: true,
+                            position: 'top-end',
+                            background: '#ffffff',
+                            customClass: {
+                              popup: 'rounded-2xl shadow-xl border border-gray-100'
+                            }
+                          });
+                        } catch (err) {
+                          console.error('Failed to copy text:', err);
+                        }
+                      }
+                    }}
+                    className="w-full py-4 bg-gray-50 border border-gray-200/60 hover:bg-gray-100 hover:border-gray-200 text-primary rounded-2xl font-bold text-base transition-all flex items-center justify-center gap-2.5 shadow-sm active:scale-[0.98]"
+                  >
+                    <Share2 className="w-5 h-5 text-secondary" />
+                    <span>{language === 'bn' ? 'ইভেন্টটি শেয়ার করুন' : 'Share Event'}</span>
+                  </button>
                 </div>
               ) : (
                 <div className="p-6 bg-red-50 rounded-[1.5rem] text-center">
