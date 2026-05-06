@@ -144,16 +144,7 @@ const FeaturedEvent = () => {
                     </motion.button>
                   </Link>
                   
-                  <div className="flex -space-x-3">
-                    {[1,2,3,4].map(i => (
-                      <div key={i} className="w-10 h-10 rounded-full border-2 border-white overflow-hidden bg-gray-100 shadow-md">
-                        <img src={`https://i.pravatar.cc/100?img=${i+10}`} alt="User" />
-                      </div>
-                    ))}
-                    <div className="h-10 px-3 rounded-full border-2 border-white bg-secondary flex items-center justify-center text-primary text-[10px] font-black shadow-md">
-                      +1.2k
-                    </div>
-                  </div>
+
                 </div>
               </div>
             </div>

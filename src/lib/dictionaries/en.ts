@@ -11,6 +11,7 @@ export const en = {
     title: "Welcome to Reunion 2.0 (2026)",
     subtitle: "Reconnecting old friends, creating new memories.",
     cta: "Register Now",
+    sponsorCta: "Become a Sponsor",
   },
   registration: {
     title: "Registration Form",

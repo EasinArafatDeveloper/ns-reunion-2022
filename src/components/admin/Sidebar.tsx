@@ -12,7 +12,8 @@ import {
   LogOut, 
   Menu,
   X,
-  Settings
+  Settings,
+  Award
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { signOut } from 'next-auth/react';
@@ -24,6 +25,7 @@ const Sidebar = () => {
   const menuItems = [
     { name: 'Overview', icon: LayoutDashboard, href: '/admin' },
     { name: 'Registrations', icon: Users, href: '/admin/registrations' },
+    { name: 'Sponsorships', icon: Award, href: '/admin/sponsorships' },
     { name: 'Events', icon: Calendar, href: '/admin/events' },
     { name: 'Notices', icon: Bell, href: '/admin/notices' },
     { name: 'Gallery', icon: ImageIcon, href: '/admin/gallery' },

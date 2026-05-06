@@ -4,7 +4,7 @@ import { useLanguage } from "@/components/providers/LanguageProvider";
 import Navbar from "@/components/layout/Navbar";
 import { motion } from "framer-motion";
 import Countdown from "@/components/ui/Countdown";
-import { ArrowRight, Sparkles, Calendar, MapPin } from "lucide-react";
+import { ArrowRight, Sparkles, Calendar, MapPin, Award } from "lucide-react";
 import Gallery from "@/components/sections/Gallery";
 import FeaturedEvent from "@/components/sections/FeaturedEvent";
 import Link from "next/link";
@@ -64,7 +64,7 @@ export default function Home() {
               </p>
 
 
-              <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex flex-col sm:flex-row flex-wrap gap-4">
                 <Link href="/register" className="w-full sm:w-auto">
                   <motion.button
                     whileHover={{ scale: 1.05, x: 5 }}
@@ -73,6 +73,17 @@ export default function Home() {
                   >
                     <span>{t.hero.cta}</span>
                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  </motion.button>
+                </Link>
+
+                <Link href="/sponsor" className="w-full sm:w-auto">
+                  <motion.button
+                    whileHover={{ scale: 1.05, y: -2 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="group px-8 py-4 bg-primary text-white rounded-2xl font-bold text-lg shadow-xl shadow-primary/20 hover:bg-opacity-95 transition-all flex items-center justify-center gap-3 w-full"
+                  >
+                    <Award className="w-5 h-5 text-secondary animate-pulse" />
+                    <span>{t.hero.sponsorCta}</span>
                   </motion.button>
                 </Link>
                 

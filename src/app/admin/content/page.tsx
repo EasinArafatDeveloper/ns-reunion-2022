@@ -31,6 +31,34 @@ const ContentAdmin = () => {
     image: ''
   });
 
+  const translateText = async (text: string, fromLang: 'en' | 'bn', toLang: 'en' | 'bn') => {
+    if (!text.trim()) return '';
+    try {
+      const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${fromLang}|${toLang}`);
+      const data = await res.json();
+      if (data?.responseData?.translatedText) {
+        return data.responseData.translatedText;
+      }
+    } catch (err) {
+      console.error('Translation error:', err);
+    }
+    return '';
+  };
+
+  const handleFieldBlur = async (fieldName: 'title' | 'location' | 'date', sourceLang: 'en' | 'bn', value: string) => {
+    if (!value.trim()) return;
+    const targetLang = sourceLang === 'en' ? 'bn' : 'en';
+    const targetFieldKey = `${fieldName}_${targetLang}` as keyof typeof featuredEvent;
+    
+    // Auto-translate if the target language field is currently empty
+    if (!featuredEvent[targetFieldKey]) {
+      const translated = await translateText(value, sourceLang, targetLang);
+      if (translated) {
+        setFeaturedEvent(prev => ({ ...prev, [targetFieldKey]: translated }));
+      }
+    }
+  };
+
   const fetchSettings = async () => {
     try {
       const res = await fetch('/api/admin/content');
@@ -187,33 +215,33 @@ const ContentAdmin = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Title (Bangla)</label>
-                  <input value={featuredEvent.title_bn} onChange={e => setFeaturedEvent({...featuredEvent, title_bn: e.target.value})} className="w-full px-5 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl outline-none font-bold" placeholder="যেমন: রিইউনিয়ন ২.০" />
+                  <input value={featuredEvent.title_bn} onChange={e => setFeaturedEvent({...featuredEvent, title_bn: e.target.value})} onBlur={e => handleFieldBlur('title', 'bn', e.target.value)} className="w-full px-5 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl outline-none font-bold" placeholder="যেমন: রিইউনিয়ন ২.০" />
                 </div>
                 <div className="space-y-2">
                   <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Title (English)</label>
-                  <input value={featuredEvent.title_en} onChange={e => setFeaturedEvent({...featuredEvent, title_en: e.target.value})} className="w-full px-5 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl outline-none font-bold" placeholder="e.g. Reunion 2.0" />
+                  <input value={featuredEvent.title_en} onChange={e => setFeaturedEvent({...featuredEvent, title_en: e.target.value})} onBlur={e => handleFieldBlur('title', 'en', e.target.value)} className="w-full px-5 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl outline-none font-bold" placeholder="e.g. Reunion 2.0" />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Location (Bangla)</label>
-                  <input value={featuredEvent.location_bn} onChange={e => setFeaturedEvent({...featuredEvent, location_bn: e.target.value})} className="w-full px-5 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl outline-none font-bold" />
+                  <input value={featuredEvent.location_bn} onChange={e => setFeaturedEvent({...featuredEvent, location_bn: e.target.value})} onBlur={e => handleFieldBlur('location', 'bn', e.target.value)} className="w-full px-5 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl outline-none font-bold" />
                 </div>
                 <div className="space-y-2">
                   <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Location (English)</label>
-                  <input value={featuredEvent.location_en} onChange={e => setFeaturedEvent({...featuredEvent, location_en: e.target.value})} className="w-full px-5 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl outline-none font-bold" />
+                  <input value={featuredEvent.location_en} onChange={e => setFeaturedEvent({...featuredEvent, location_en: e.target.value})} onBlur={e => handleFieldBlur('location', 'en', e.target.value)} className="w-full px-5 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl outline-none font-bold" />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Date String (Bangla)</label>
-                  <input value={featuredEvent.date_bn} onChange={e => setFeaturedEvent({...featuredEvent, date_bn: e.target.value})} className="w-full px-5 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl outline-none font-bold" placeholder="যেমন: ৩১শে ডিসেম্বর, ২০২৬" />
+                  <input value={featuredEvent.date_bn} onChange={e => setFeaturedEvent({...featuredEvent, date_bn: e.target.value})} onBlur={e => handleFieldBlur('date', 'bn', e.target.value)} className="w-full px-5 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl outline-none font-bold" placeholder="যেমন: ৩১শে ডিসেম্বর, ২০২৬" />
                 </div>
                 <div className="space-y-2">
                   <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Date String (English)</label>
-                  <input value={featuredEvent.date_en} onChange={e => setFeaturedEvent({...featuredEvent, date_en: e.target.value})} className="w-full px-5 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl outline-none font-bold" placeholder="e.g. Dec 31, 2026" />
+                  <input value={featuredEvent.date_en} onChange={e => setFeaturedEvent({...featuredEvent, date_en: e.target.value})} onBlur={e => handleFieldBlur('date', 'en', e.target.value)} className="w-full px-5 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl outline-none font-bold" placeholder="e.g. Dec 31, 2026" />
                 </div>
               </div>
 
