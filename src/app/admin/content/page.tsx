@@ -11,7 +11,8 @@ import {
   MapPin,
   Sparkles,
   Camera,
-  Layout
+  Layout,
+  CreditCard
 } from 'lucide-react';
 
 const ContentAdmin = () => {
@@ -19,6 +20,11 @@ const ContentAdmin = () => {
   const [saving, setSaving] = useState(false);
   const [reunionDate, setReunionDate] = useState('');
   const [reunionTime, setReunionTime] = useState('');
+  
+  // Payment Numbers
+  const [bkashNumber, setBkashNumber] = useState('01732657219');
+  const [nagadNumber, setNagadNumber] = useState('01732657219');
+  const [rocketNumber, setRocketNumber] = useState('01732657219');
   
   // Featured Event Settings
   const [featuredEvent, setFeaturedEvent] = useState({
@@ -77,6 +83,16 @@ const ContentAdmin = () => {
       if (feSetting) {
         setFeaturedEvent(JSON.parse(feSetting.value));
       }
+
+      // Payment Numbers
+      const bkashSetting = data.find((c: any) => c.key === 'bkash_number');
+      if (bkashSetting) setBkashNumber(bkashSetting.value);
+
+      const nagadSetting = data.find((c: any) => c.key === 'nagad_number');
+      if (nagadSetting) setNagadNumber(nagadSetting.value);
+
+      const rocketSetting = data.find((c: any) => c.key === 'rocket_number');
+      if (rocketSetting) setRocketNumber(rocketSetting.value);
     } catch (error) {
       console.error(error);
     } finally {
@@ -111,6 +127,11 @@ const ContentAdmin = () => {
       
       // Save Featured Event
       await handleUpdateSetting('featured_event', JSON.stringify(featuredEvent));
+
+      // Save Payment Numbers
+      await handleUpdateSetting('bkash_number', bkashNumber);
+      await handleUpdateSetting('nagad_number', nagadNumber);
+      await handleUpdateSetting('rocket_number', rocketNumber);
       
       Swal.fire('Success', 'Settings updated successfully!', 'success');
     } catch (error) {
@@ -160,109 +181,147 @@ const ContentAdmin = () => {
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           
-          {/* Main Event Timer Section */}
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-white rounded-[3rem] p-10 border border-gray-100 shadow-xl shadow-primary/5 h-fit"
-          >
-            <div className="flex items-center gap-4 mb-8">
-              <div className="p-4 bg-secondary/10 rounded-2xl">
-                <Clock className="w-8 h-8 text-secondary" />
-              </div>
-              <div>
-                <h2 className="text-xl font-black text-primary">Main Event Timer</h2>
-                <p className="text-sm text-gray-400 font-bold">Global countdown target date.</p>
-              </div>
-            </div>
-
-            <div className="space-y-6">
-              <div className="space-y-2">
-                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Event Date</label>
-                <div className="relative">
-                  <Calendar className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                  <input type="date" value={reunionDate} onChange={e => setReunionDate(e.target.value)} className="w-full pl-14 pr-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl outline-none font-bold" />
+          {/* Left Column: Timer & Payments */}
+          <div className="space-y-8 flex flex-col">
+            {/* Main Event Timer Section */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-white rounded-[3rem] p-10 border border-gray-100 shadow-xl shadow-primary/5 h-fit w-full"
+            >
+              <div className="flex items-center gap-4 mb-8">
+                <div className="p-4 bg-secondary/10 rounded-2xl">
+                  <Clock className="w-8 h-8 text-secondary" />
                 </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Event Time</label>
-                <div className="relative">
-                  <Clock className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                  <input type="time" value={reunionTime} onChange={e => setReunionTime(e.target.value)} className="w-full pl-14 pr-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl outline-none font-bold" />
-                </div>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Featured Event Card Section */}
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="bg-white rounded-[3rem] p-10 border border-gray-100 shadow-xl shadow-primary/5 h-fit"
-          >
-            <div className="flex items-center gap-4 mb-8">
-              <div className="p-4 bg-primary/5 rounded-2xl">
-                <Layout className="w-8 h-8 text-primary" />
-              </div>
-              <div>
-                <h2 className="text-xl font-black text-primary">Featured Event Card</h2>
-                <p className="text-sm text-gray-400 font-bold">Edit the main event card on home page.</p>
-              </div>
-            </div>
-
-            <div className="space-y-6">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Title (Bangla)</label>
-                  <input value={featuredEvent.title_bn} onChange={e => setFeaturedEvent({...featuredEvent, title_bn: e.target.value})} onBlur={e => handleFieldBlur('title', 'bn', e.target.value)} className="w-full px-5 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl outline-none font-bold" placeholder="যেমন: রিইউনিয়ন ২.০" />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Title (English)</label>
-                  <input value={featuredEvent.title_en} onChange={e => setFeaturedEvent({...featuredEvent, title_en: e.target.value})} onBlur={e => handleFieldBlur('title', 'en', e.target.value)} className="w-full px-5 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl outline-none font-bold" placeholder="e.g. Reunion 2.0" />
+                <div>
+                  <h2 className="text-xl font-black text-primary">Main Event Timer</h2>
+                  <p className="text-sm text-gray-400 font-bold">Global countdown target date.</p>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-6">
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Location (Bangla)</label>
-                  <input value={featuredEvent.location_bn} onChange={e => setFeaturedEvent({...featuredEvent, location_bn: e.target.value})} onBlur={e => handleFieldBlur('location', 'bn', e.target.value)} className="w-full px-5 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl outline-none font-bold" />
+                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Event Date</label>
+                  <div className="relative">
+                    <Calendar className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <input type="date" value={reunionDate} onChange={e => setReunionDate(e.target.value)} className="w-full pl-14 pr-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl outline-none font-bold text-primary" />
+                  </div>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Location (English)</label>
-                  <input value={featuredEvent.location_en} onChange={e => setFeaturedEvent({...featuredEvent, location_en: e.target.value})} onBlur={e => handleFieldBlur('location', 'en', e.target.value)} className="w-full px-5 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl outline-none font-bold" />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Date String (Bangla)</label>
-                  <input value={featuredEvent.date_bn} onChange={e => setFeaturedEvent({...featuredEvent, date_bn: e.target.value})} onBlur={e => handleFieldBlur('date', 'bn', e.target.value)} className="w-full px-5 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl outline-none font-bold" placeholder="যেমন: ৩১শে ডিসেম্বর, ২০২৬" />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Date String (English)</label>
-                  <input value={featuredEvent.date_en} onChange={e => setFeaturedEvent({...featuredEvent, date_en: e.target.value})} onBlur={e => handleFieldBlur('date', 'en', e.target.value)} className="w-full px-5 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl outline-none font-bold" placeholder="e.g. Dec 31, 2026" />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Cover Image</label>
-                <div className="relative group h-40">
-                  <input type="file" accept="image/*" onChange={handleFileChange} className="absolute inset-0 opacity-0 cursor-pointer z-10" />
-                  <div className={`w-full h-full bg-gray-50 border-2 border-dashed ${featuredEvent.image ? 'border-green-400' : 'border-gray-200'} rounded-[1.5rem] flex flex-col items-center justify-center gap-2 group-hover:border-primary transition-all overflow-hidden`}>
-                    {featuredEvent.image ? (
-                      <img src={featuredEvent.image} className="w-full h-full object-cover" />
-                    ) : (
-                      <>
-                        <Camera className="w-8 h-8 text-gray-400" />
-                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Select Cover Image</span>
-                      </>
-                    )}
+                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Event Time</label>
+                  <div className="relative">
+                    <Clock className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <input type="time" value={reunionTime} onChange={e => setReunionTime(e.target.value)} className="w-full pl-14 pr-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl outline-none font-bold text-primary" />
                   </div>
                 </div>
               </div>
-            </div>
-          </motion.div>
+            </motion.div>
+
+            {/* Payment Method Numbers Section */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.05 }}
+              className="bg-white rounded-[3rem] p-10 border border-gray-100 shadow-xl shadow-primary/5 h-fit w-full"
+            >
+              <div className="flex items-center gap-4 mb-8">
+                <div className="p-4 bg-orange-50 rounded-2xl">
+                  <CreditCard className="w-8 h-8 text-orange-500" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-black text-primary">Payment Numbers</h2>
+                  <p className="text-sm text-gray-400 font-bold">Configure active receiver phone numbers.</p>
+                </div>
+              </div>
+
+              <div className="space-y-6">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">bKash Number</label>
+                  <input type="text" value={bkashNumber} onChange={e => setBkashNumber(e.target.value)} className="w-full px-5 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl outline-none font-bold text-primary" placeholder="e.g. 017XXXXXXXX" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Nagad Number</label>
+                  <input type="text" value={nagadNumber} onChange={e => setNagadNumber(e.target.value)} className="w-full px-5 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl outline-none font-bold text-primary" placeholder="e.g. 017XXXXXXXX" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Rocket Number</label>
+                  <input type="text" value={rocketNumber} onChange={e => setRocketNumber(e.target.value)} className="w-full px-5 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl outline-none font-bold text-primary" placeholder="e.g. 017XXXXXXXX" />
+                </div>
+              </div>
+            </motion.div>
+          </div>
+
+          {/* Right Column: Featured Event */}
+          <div className="space-y-8 flex flex-col">
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="bg-white rounded-[3rem] p-10 border border-gray-100 shadow-xl shadow-primary/5 h-fit"
+            >
+              <div className="flex items-center gap-4 mb-8">
+                <div className="p-4 bg-primary/5 rounded-2xl">
+                  <Layout className="w-8 h-8 text-primary" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-black text-primary">Featured Event Card</h2>
+                  <p className="text-sm text-gray-400 font-bold">Edit the main event card on home page.</p>
+                </div>
+              </div>
+
+              <div className="space-y-6">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Title (Bangla)</label>
+                    <input value={featuredEvent.title_bn} onChange={e => setFeaturedEvent({...featuredEvent, title_bn: e.target.value})} onBlur={e => handleFieldBlur('title', 'bn', e.target.value)} className="w-full px-5 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl outline-none font-bold" placeholder="যেমন: রিইউনিয়ন ২.০" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Title (English)</label>
+                    <input value={featuredEvent.title_en} onChange={e => setFeaturedEvent({...featuredEvent, title_en: e.target.value})} onBlur={e => handleFieldBlur('title', 'en', e.target.value)} className="w-full px-5 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl outline-none font-bold" placeholder="e.g. Reunion 2.0" />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Location (Bangla)</label>
+                    <input value={featuredEvent.location_bn} onChange={e => setFeaturedEvent({...featuredEvent, location_bn: e.target.value})} onBlur={e => handleFieldBlur('location', 'bn', e.target.value)} className="w-full px-5 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl outline-none font-bold" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Location (English)</label>
+                    <input value={featuredEvent.location_en} onChange={e => setFeaturedEvent({...featuredEvent, location_en: e.target.value})} onBlur={e => handleFieldBlur('location', 'en', e.target.value)} className="w-full px-5 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl outline-none font-bold" />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Date String (Bangla)</label>
+                    <input value={featuredEvent.date_bn} onChange={e => setFeaturedEvent({...featuredEvent, date_bn: e.target.value})} onBlur={e => handleFieldBlur('date', 'bn', e.target.value)} className="w-full px-5 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl outline-none font-bold" placeholder="যেমন: ৩১শে ডিসেম্বর, ২০২৬" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Date String (English)</label>
+                    <input value={featuredEvent.date_en} onChange={e => setFeaturedEvent({...featuredEvent, date_en: e.target.value})} onBlur={e => handleFieldBlur('date', 'en', e.target.value)} className="w-full px-5 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl outline-none font-bold" placeholder="e.g. Dec 31, 2026" />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Cover Image</label>
+                  <div className="relative group h-40">
+                    <input type="file" accept="image/*" onChange={handleFileChange} className="absolute inset-0 opacity-0 cursor-pointer z-10" />
+                    <div className={`w-full h-full bg-gray-50 border-2 border-dashed ${featuredEvent.image ? 'border-green-400' : 'border-gray-200'} rounded-[1.5rem] flex flex-col items-center justify-center gap-2 group-hover:border-primary transition-all overflow-hidden`}>
+                      {featuredEvent.image ? (
+                        <img src={featuredEvent.image} className="w-full h-full object-cover" />
+                      ) : (
+                        <>
+                          <Camera className="w-8 h-8 text-gray-400" />
+                          <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Select Cover Image</span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
 
         </div>
       )}

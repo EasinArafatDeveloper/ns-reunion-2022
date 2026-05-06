@@ -10,6 +10,12 @@ import Swal from 'sweetalert2';
 const RegisterPage = () => {
   const { language } = useLanguage();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [paymentNumbers, setPaymentNumbers] = useState({
+    bkash: '01732657219',
+    nagad: '01732657219',
+    rocket: '01732657219'
+  });
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -23,11 +29,29 @@ const RegisterPage = () => {
     occupation: '',
     tshirtSize: '',
     amount: '',
-    paymentOption: 'bkash',
+    paymentOption: '', // Set to empty initially
     transactionId: '',
     comment: '',
     photo: '' // Base64 string
   });
+
+  React.useEffect(() => {
+    const fetchPaymentNumbers = async () => {
+      try {
+        const res = await fetch('/api/admin/content');
+        const data = await res.json();
+        
+        const bkashVal = data.find((c: any) => c.key === 'bkash_number')?.value || '01732657219';
+        const nagadVal = data.find((c: any) => c.key === 'nagad_number')?.value || '01732657219';
+        const rocketVal = data.find((c: any) => c.key === 'rocket_number')?.value || '01732657219';
+        
+        setPaymentNumbers({ bkash: bkashVal, nagad: nagadVal, rocket: rocketVal });
+      } catch (err) {
+        console.error('Error fetching payment numbers:', err);
+      }
+    };
+    fetchPaymentNumbers();
+  }, []);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -47,6 +71,37 @@ const RegisterPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+
+    // 1. Validation: Ensure Payment Option is selected
+    if (!formData.paymentOption) {
+      Swal.fire({
+        icon: 'error',
+        title: language === 'bn' ? 'পেমেন্ট অপারেটর সিলেক্ট করুন!' : 'Select Payment Operator!',
+        text: language === 'bn' 
+          ? 'অনুগ্রহ করে বিকাশ, নগদ বা রকেটের যেকোনো একটি নির্বাচন করুন।' 
+          : 'Please select bKash, Nagad, or Rocket to proceed with payment.',
+        confirmButtonColor: '#1a1a54',
+        customClass: { popup: 'rounded-[2rem]' }
+      });
+      setIsSubmitting(false);
+      return;
+    }
+
+    // 2. Validation: Ensure amount is minimum 1000 TK
+    const amountNum = parseFloat(formData.amount);
+    if (isNaN(amountNum) || amountNum < 1000) {
+      Swal.fire({
+        icon: 'error',
+        title: language === 'bn' ? 'পেমেন্ট অ্যামাউন্ট ভুল!' : 'Invalid Payment Amount!',
+        text: language === 'bn' 
+          ? 'দুঃখিত, রেজিস্ট্রেশন ফি সর্বনিম্ন ১০০০ টাকা হতে হবে।' 
+          : 'Sorry, the minimum registration fee is 1000 TK.',
+        confirmButtonColor: '#1a1a54',
+        customClass: { popup: 'rounded-[2rem]' }
+      });
+      setIsSubmitting(false);
+      return;
+    }
 
     try {
       const res = await fetch('/api/register', {
@@ -69,7 +124,7 @@ const RegisterPage = () => {
         setFormData({
           name: '', email: '', phone: '', section: '', department: '', code: '',
           institute: '', currentSection: '', currentDepartment: '', occupation: '',
-          tshirtSize: '', amount: '', paymentOption: 'bkash', transactionId: '', comment: '', photo: ''
+          tshirtSize: '', amount: '', paymentOption: '', transactionId: '', comment: '', photo: ''
         });
       } else {
         throw new Error(result.message);
@@ -197,15 +252,27 @@ const RegisterPage = () => {
                 <div className="space-y-6">
                   <div>
                     <label className={labelClasses}>{language === 'bn' ? 'টাকার পরিমাণ' : 'Amount of Money'}</label>
-                    <input type="number" required value={formData.amount} onChange={e => setFormData({...formData, amount: e.target.value})} placeholder="Ex: 500" className={`${inputClasses} bg-white`} />
+                    <input type="number" required value={formData.amount} onChange={e => setFormData({...formData, amount: e.target.value})} placeholder="Ex: 1000" className={`${inputClasses} bg-white`} />
                   </div>
                   <div>
                     <label className={labelClasses}>{language === 'bn' ? 'পেমেন্ট অপশন' : 'Payment Option'}</label>
-                    <div className="flex gap-4">
-                      {['bkash', 'nagad'].map((opt) => (
-                        <label key={opt} className={`flex-1 flex items-center justify-center gap-2 p-4 bg-white border ${formData.paymentOption === opt ? 'border-secondary' : 'border-gray-100'} rounded-2xl cursor-pointer transition-all`}>
-                          <input type="radio" name="payment" value={opt} checked={formData.paymentOption === opt} onChange={e => setFormData({...formData, paymentOption: e.target.value})} className="accent-secondary" />
-                          <span className="font-bold text-primary uppercase">{opt}</span>
+                    <div className="grid grid-cols-3 gap-3">
+                      {['bkash', 'nagad', 'rocket'].map((opt) => (
+                        <label 
+                          key={opt} 
+                          className={`flex flex-col items-center justify-center gap-2 p-3 bg-white border ${
+                            formData.paymentOption === opt ? 'border-secondary ring-1 ring-secondary' : 'border-gray-200'
+                          } rounded-2xl cursor-pointer transition-all hover:border-secondary`}
+                        >
+                          <input 
+                            type="radio" 
+                            name="payment" 
+                            value={opt} 
+                            checked={formData.paymentOption === opt} 
+                            onChange={e => setFormData({...formData, paymentOption: e.target.value})} 
+                            className="accent-secondary" 
+                          />
+                          <span className="font-bold text-primary uppercase text-sm">{opt}</span>
                         </label>
                       ))}
                     </div>
@@ -215,12 +282,44 @@ const RegisterPage = () => {
                     <input type="text" required value={formData.transactionId} onChange={e => setFormData({...formData, transactionId: e.target.value})} placeholder="Ex: 8XJ9K2L0" className={`${inputClasses} bg-white border-secondary/30`} />
                   </div>
                 </div>
-                <div className="bg-primary p-6 rounded-[1.5rem] text-white flex flex-col justify-center relative overflow-hidden shadow-xl shadow-primary/20">
-                  <div className="absolute top-0 right-0 w-24 h-24 bg-white/5 rounded-full -mr-12 -mt-12" />
-                  <p className="text-xs font-black text-white/60 tracking-[0.2em] mb-2 uppercase">{language === 'bn' ? 'এই নম্বরে টাকা পাঠান' : 'Send Money To'}</p>
-                  <p className="text-3xl font-black mb-4 tracking-wider">01301295298</p>
-                  <div className="flex items-center gap-2 text-xs font-bold text-secondary bg-white/10 px-3 py-1.5 rounded-full w-fit"><AlertCircle className="w-3.5 h-3.5" /><span>{language === 'bn' ? 'বিকাশ/নগদ পার্সোনাল' : 'Bkash/Nagad Personal'}</span></div>
-                </div>
+
+                {formData.paymentOption ? (
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="bg-primary p-6 rounded-[1.5rem] text-white flex flex-col justify-center relative overflow-hidden shadow-xl shadow-primary/20 min-h-[220px]"
+                  >
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-white/5 rounded-full -mr-12 -mt-12" />
+                    <p className="text-xs font-black text-white/60 tracking-[0.2em] mb-2 uppercase">
+                      {language === 'bn' 
+                        ? `এই ${formData.paymentOption.toUpperCase()} নম্বরে টাকা পাঠান` 
+                        : `Send Money To this ${formData.paymentOption.toUpperCase()} Number`}
+                    </p>
+                    <p className="text-3xl font-black mb-4 tracking-wider">
+                      {paymentNumbers[formData.paymentOption as keyof typeof paymentNumbers]}
+                    </p>
+                    <div className="flex items-center gap-2 text-xs font-bold text-secondary bg-white/10 px-3 py-1.5 rounded-full w-fit">
+                      <AlertCircle className="w-3.5 h-3.5" />
+                      <span>
+                        {language === 'bn' 
+                          ? `${formData.paymentOption.toUpperCase()} পার্সোনাল (Send Money)` 
+                          : `${formData.paymentOption.toUpperCase()} Personal (Send Money)`}
+                      </span>
+                    </div>
+                  </motion.div>
+                ) : (
+                  <div className="bg-white border border-dashed border-gray-200 rounded-[1.5rem] p-6 flex flex-col items-center justify-center text-center gap-2 text-gray-400 min-h-[220px]">
+                    <CreditCard className="w-8 h-8 text-gray-300 animate-pulse" />
+                    <p className="text-sm font-black uppercase tracking-wider text-primary">
+                      {language === 'bn' ? 'পেমেন্ট অপারেটর সিলেক্ট করুন' : 'Select Payment Operator'}
+                    </p>
+                    <p className="text-xs font-bold max-w-xs text-gray-400">
+                      {language === 'bn' 
+                        ? 'নম্বর ও পেমেন্ট নির্দেশনাবলী দেখতে বিকাশ, নগদ অথবা রকেট সিলেক্ট করুন।' 
+                        : 'Select bKash, Nagad, or Rocket to view instructions and destination phone number.'}
+                    </p>
+                  </div>
+                )}
               </div>
             </section>
 

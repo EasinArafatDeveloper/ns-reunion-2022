@@ -10,6 +10,12 @@ import Swal from 'sweetalert2';
 const SponsorPage = () => {
   const { language } = useLanguage();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [paymentNumbers, setPaymentNumbers] = useState({
+    bkash: '01732657219',
+    nagad: '01732657219',
+    rocket: '01732657219'
+  });
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -17,7 +23,7 @@ const SponsorPage = () => {
     currentCountry: '',
     occupation: '',
     amount: '',
-    paymentSystem: 'Bkash',
+    paymentSystem: '', // Set to empty initially
     transactionId: '',
   });
 
@@ -31,9 +37,42 @@ const SponsorPage = () => {
     { code: 'India', label: language === 'bn' ? 'ভারত (India)' : 'India' },
   ];
 
+  React.useEffect(() => {
+    const fetchPaymentNumbers = async () => {
+      try {
+        const res = await fetch('/api/admin/content');
+        const data = await res.json();
+        
+        const bkashVal = data.find((c: any) => c.key === 'bkash_number')?.value || '01732657219';
+        const nagadVal = data.find((c: any) => c.key === 'nagad_number')?.value || '01732657219';
+        const rocketVal = data.find((c: any) => c.key === 'rocket_number')?.value || '01732657219';
+        
+        setPaymentNumbers({ bkash: bkashVal, nagad: nagadVal, rocket: rocketVal });
+      } catch (err) {
+        console.error('Error fetching payment numbers:', err);
+      }
+    };
+    fetchPaymentNumbers();
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+
+    // Validation: Ensure payment operator is selected
+    if (!formData.paymentSystem) {
+      Swal.fire({
+        icon: 'error',
+        title: language === 'bn' ? 'পেমেন্ট অপারেটর সিলেক্ট করুন!' : 'Select Payment Operator!',
+        text: language === 'bn' 
+          ? 'অনুগ্রহ করে বিকাশ, নগদ বা রকেটের যেকোনো একটি পেমেন্ট অপারেটর নির্বাচন করুন।' 
+          : 'Please select bKash, Nagad, or Rocket to proceed with sponsorship payment.',
+        confirmButtonColor: '#1a1a54',
+        customClass: { popup: 'rounded-[2rem]' }
+      });
+      setIsSubmitting(false);
+      return;
+    }
 
     try {
       const res = await fetch('/api/sponsor', {
@@ -62,7 +101,7 @@ const SponsorPage = () => {
           currentCountry: '',
           occupation: '',
           amount: '',
-          paymentSystem: 'Bkash',
+          paymentSystem: '',
           transactionId: '',
         });
       } else {
@@ -257,18 +296,43 @@ const SponsorPage = () => {
                     />
                   </div>
                 </div>
-
-                <div className="bg-primary p-6 rounded-[1.5rem] text-white flex flex-col justify-center relative overflow-hidden shadow-xl shadow-primary/20">
-                  <div className="absolute top-0 right-0 w-24 h-24 bg-white/5 rounded-full -mr-12 -mt-12" />
-                  <p className="text-xs font-black text-white/60 tracking-[0.2em] mb-2 uppercase">
-                    {language === 'bn' ? 'এই নম্বরে পেমেন্ট বা সেন্ড মানি করুন' : 'Send Sponsorship To'}
-                  </p>
-                  <p className="text-3xl font-black mb-4 tracking-wider">01301295298</p>
-                  <div className="flex items-center gap-2 text-xs font-bold text-secondary bg-white/10 px-3 py-1.5 rounded-full w-fit">
-                    <AlertCircle className="w-3.5 h-3.5" />
-                    <span>{language === 'bn' ? 'বিকাশ/নগদ/রকেট পার্সোনাল' : 'Bkash/Nagad/Rocket Personal'}</span>
+                {formData.paymentSystem ? (
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="bg-primary p-6 rounded-[1.5rem] text-white flex flex-col justify-center relative overflow-hidden shadow-xl shadow-primary/20 min-h-[220px]"
+                  >
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-white/5 rounded-full -mr-12 -mt-12" />
+                    <p className="text-xs font-black text-white/60 tracking-[0.2em] mb-2 uppercase">
+                      {language === 'bn' 
+                        ? `এই ${formData.paymentSystem.toUpperCase()} নম্বরে পেমেন্ট বা সেন্ড মানি করুন` 
+                        : `Send Sponsorship To this ${formData.paymentSystem.toUpperCase()} Number`}
+                    </p>
+                    <p className="text-3xl font-black mb-4 tracking-wider">
+                      {paymentNumbers[formData.paymentSystem.toLowerCase() as keyof typeof paymentNumbers]}
+                    </p>
+                    <div className="flex items-center gap-2 text-xs font-bold text-secondary bg-white/10 px-3 py-1.5 rounded-full w-fit">
+                      <AlertCircle className="w-3.5 h-3.5" />
+                      <span>
+                        {language === 'bn' 
+                          ? `${formData.paymentSystem.toUpperCase()} পার্সোনাল` 
+                          : `${formData.paymentSystem.toUpperCase()} Personal`}
+                      </span>
+                    </div>
+                  </motion.div>
+                ) : (
+                  <div className="bg-white border border-dashed border-gray-200 rounded-[1.5rem] p-6 flex flex-col items-center justify-center text-center gap-2 text-gray-400 min-h-[220px]">
+                    <CreditCard className="w-8 h-8 text-gray-300 animate-pulse" />
+                    <p className="text-sm font-black uppercase tracking-wider text-primary">
+                      {language === 'bn' ? 'পেমেন্ট অপারেটর সিলেক্ট করুন' : 'Select Payment Operator'}
+                    </p>
+                    <p className="text-xs font-bold max-w-xs text-gray-400">
+                      {language === 'bn' 
+                        ? 'নম্বর ও পেমেন্ট বিবরণী দেখতে বিকাশ, নগদ অথবা রকেট সিলেক্ট করুন।' 
+                        : 'Select bKash, Nagad, or Rocket to view instructions and sponsorship receiver number.'}
+                    </p>
                   </div>
-                </div>
+                )}
               </div>
             </section>
 
