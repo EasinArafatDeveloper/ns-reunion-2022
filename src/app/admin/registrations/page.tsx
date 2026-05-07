@@ -13,7 +13,12 @@ import {
   Loader2,
   X,
   Mail,
-  Phone
+  Phone,
+  CreditCard,
+  MapPin,
+  Calendar,
+  Shirt,
+  Navigation
 } from 'lucide-react';
 
 const RegistrationsAdmin = () => {
@@ -21,6 +26,91 @@ const RegistrationsAdmin = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedReg, setSelectedReg] = useState<any | null>(null);
+  const [activePassReg, setActivePassReg] = useState<any | null>(null);
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
+
+  useEffect(() => {
+    if (activePassReg) {
+      const origin = typeof window !== 'undefined' ? window.location.origin : '';
+      const verifyUrl = `${origin}/verify/${activePassReg._id}`;
+      import('qrcode').then((QRCode) => {
+        QRCode.toDataURL(verifyUrl, {
+          margin: 1,
+          width: 200,
+          color: {
+            dark: '#1a1a54',
+            light: '#ffffff'
+          }
+        })
+        .then(url => setQrCodeUrl(url))
+        .catch(err => console.error('QR generation error:', err));
+      });
+    } else {
+      setQrCodeUrl('');
+    }
+  }, [activePassReg]);
+
+  const handleDownload = async () => {
+    if (!activePassReg) return;
+    setIsDownloading(true);
+    try {
+      const { toPng } = await import('html-to-image');
+      const ticketElement = document.getElementById('digital-ticket');
+      if (ticketElement) {
+        await new Promise(resolve => setTimeout(resolve, 300));
+        const dataUrl = await toPng(ticketElement, {
+          cacheBust: true,
+          pixelRatio: 2,
+          backgroundColor: '#ffffff'
+        });
+
+        const fileName = `${activePassReg.name.replace(/\s+/g, '_')}_reunion_pass.png`;
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
+
+        if (isMobile) {
+          const response = await fetch(dataUrl);
+          const blob = await response.blob();
+          if (blob) {
+            const file = new File([blob], fileName, { type: 'image/png' });
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+              try {
+                await navigator.share({
+                  files: [file],
+                  title: 'Reunion 2026 Entry Pass',
+                  text: 'My Reunion 2026 digital entry ticket!'
+                });
+                setIsDownloading(false);
+                return;
+              } catch (shareErr) {
+                console.log('Sharing failed, falling back', shareErr);
+              }
+            }
+          }
+        }
+
+        const link = document.createElement('a');
+        link.download = fileName;
+        link.href = dataUrl;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        setIsDownloading(false);
+      } else {
+        throw new Error('Digital ticket element not found in DOM');
+      }
+    } catch (err: any) {
+      console.error('Error downloading pass image:', err);
+      setIsDownloading(false);
+      Swal.fire({
+        icon: 'error',
+        title: 'Download Failed',
+        text: 'Failed to download the pass image. Please try taking a screenshot instead.',
+        confirmButtonColor: '#1a1a54',
+        customClass: { popup: 'rounded-[2rem]' }
+      });
+    }
+  };
 
   // Fetch registrations
   const fetchRegistrations = async () => {
@@ -283,6 +373,13 @@ const RegistrationsAdmin = () => {
                         </>
                       )}
                       <button 
+                        onClick={() => setActivePassReg(reg)}
+                        className="p-2 text-secondary hover:bg-orange-50 rounded-xl transition-all"
+                        title="View & Download Digital Pass"
+                      >
+                        <CreditCard className="w-5 h-5 text-secondary" />
+                      </button>
+                      <button 
                         onClick={() => handleDelete(reg._id)}
                         className="p-2 text-red-400 hover:bg-red-50 rounded-xl transition-all"
                         title="Delete"
@@ -468,12 +565,24 @@ const RegistrationsAdmin = () => {
 
               {/* Modal Actions */}
               <div className="p-8 border-t border-gray-100 bg-gray-50/50 flex justify-between gap-4">
-                <button 
-                  onClick={() => setSelectedReg(null)}
-                  className="px-6 py-3 bg-white text-gray-500 border border-gray-200 rounded-xl font-bold hover:bg-gray-100 transition-all text-sm"
-                >
-                  Close
-                </button>
+                <div className="flex gap-2">
+                  <button 
+                    onClick={() => setSelectedReg(null)}
+                    className="px-6 py-3 bg-white text-gray-500 border border-gray-200 rounded-xl font-bold hover:bg-gray-100 transition-all text-sm"
+                  >
+                    Close
+                  </button>
+                  <button 
+                    onClick={() => {
+                      setActivePassReg(selectedReg);
+                      setSelectedReg(null);
+                    }}
+                    className="px-6 py-3 bg-secondary/10 text-secondary border border-secondary/20 hover:bg-secondary/20 rounded-xl font-bold transition-all text-sm flex items-center gap-2"
+                  >
+                    <CreditCard className="w-4 h-4" />
+                    View & Download Pass
+                  </button>
+                </div>
 
                 {selectedReg.status !== 'approved' && selectedReg.status !== 'rejected' && (
                   <div className="flex gap-2">
@@ -499,6 +608,252 @@ const RegistrationsAdmin = () => {
                     </button>
                   </div>
                 )}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Digital Entry Pass Ticket Modal */}
+      <AnimatePresence>
+        {activePassReg && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 overflow-y-auto">
+            {/* Backdrop Overlay */}
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setActivePassReg(null)}
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            />
+            
+            {/* Modal Body */}
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative z-10 flex flex-col items-center justify-center gap-6 max-w-md w-full my-8"
+            >
+              <button 
+                onClick={() => setActivePassReg(null)}
+                className="absolute -top-12 right-0 p-2.5 bg-white/10 hover:bg-white/20 text-white rounded-full transition-all border border-white/10 shadow-lg"
+              >
+                <X className="w-5 h-5 text-white" />
+              </button>
+
+              {/* Premium Digital Entry Ticket Pass Card Wrapper */}
+              <div 
+                id="digital-ticket"
+                className="relative w-full bg-white border rounded-[3rem] shadow-2xl overflow-hidden p-[1px]"
+                style={{ borderColor: '#f3f4f6' }}
+              >
+                
+                {/* Ticket Top Branding Accent Banner */}
+                <div 
+                  className="h-[180px] relative overflow-hidden flex flex-col items-center justify-center p-6"
+                  style={{ backgroundColor: '#101130', color: '#ffffff' }}
+                >
+                  {/* Left side skewed golden gradient accent */}
+                  <div className="absolute top-0 left-0 w-32 h-full bg-gradient-to-r from-amber-500 to-orange-600 opacity-90 transform -skew-x-12 -translate-x-16 pointer-events-none" />
+                  
+                  {/* Right side diagonal lines and gradient accent */}
+                  <div className="absolute top-0 right-0 w-40 h-full bg-gradient-to-l from-amber-500/10 to-transparent opacity-50 pointer-events-none" />
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16 blur-2xl pointer-events-none" />
+                  <div className="absolute top-0 right-0 w-32 h-full bg-[linear-gradient(45deg,rgba(255,255,255,0.05)_25%,transparent_25%,transparent_50%,rgba(255,255,255,0.05)_50%,rgba(255,255,255,0.05)_75%,transparent_75%,transparent)] bg-[size:12px_12px] transform skew-x-12 pointer-events-none" />
+                  
+                  <div className="absolute top-0 left-0 w-32 h-32 bg-white/10 rounded-full -ml-16 -mt-16 blur-xl pointer-events-none" />
+                  
+                  {/* Custom Pass Badge Tag */}
+                  <span 
+                    className="px-5 py-1.5 text-white rounded-full text-[11px] font-black tracking-widest uppercase mb-4 h-7 flex items-center justify-center shadow-[0_4px_12px_rgba(255,140,0,0.4)] z-10"
+                    style={{ backgroundColor: '#ff8c00' }}
+                  >
+                    Official Entry Pass
+                  </span>
+                  
+                  {/* NS Unity Forum 2022 */}
+                  <h3 className="text-2xl font-black tracking-tight mb-1 text-white z-10 text-center uppercase">NS Unity Forum 2022</h3>
+                  
+                  {/* Reunion 2.0 (2026) */}
+                  <div className="flex items-center gap-2 z-10">
+                    <span className="w-4 h-[1px] bg-secondary" />
+                    <p 
+                      className="text-[10px] font-black uppercase tracking-widest"
+                      style={{ color: '#ff8c00' }}
+                    >
+                      Reunion 2.0 (2026)
+                    </p>
+                    <span className="w-4 h-[1px] bg-secondary" />
+                  </div>
+                </div>
+
+                {/* Scalloped side ticket cutouts */}
+                <div 
+                  className="absolute top-[168px] -left-3 w-6 h-6 border-r rounded-full z-10 shadow-inner" 
+                  style={{ backgroundColor: '#F8FAFC', borderColor: '#f3f4f6' }}
+                />
+                <div 
+                  className="absolute top-[168px] -right-3 w-6 h-6 border-l rounded-full z-10 shadow-inner" 
+                  style={{ backgroundColor: '#F8FAFC', borderColor: '#f3f4f6' }}
+                />
+                
+                {/* Tear-off Dashed Divider Line */}
+                <div 
+                  className="absolute top-[180px] left-6 right-6 border-t-2 border-dashed z-10" 
+                  style={{ borderTopColor: '#e5e7eb' }}
+                />
+
+                {/* Ticket Detail Body */}
+                <div className="p-6 pt-9 flex flex-col items-center bg-white">
+                  
+                  {/* Circular Profile Image thumbnail with gold border ring */}
+                  {activePassReg.photo ? (
+                    <div className="w-36 h-36 rounded-full overflow-hidden border-4 border-white ring-2 ring-secondary/50 shadow-xl relative -mt-20 z-20">
+                      <img src={activePassReg.photo} alt={activePassReg.name} className="w-full h-full object-cover" />
+                    </div>
+                  ) : (
+                    <div 
+                      className="w-36 h-36 rounded-full border-4 border-white ring-2 ring-secondary/50 shadow-xl relative -mt-20 z-20 flex items-center justify-center font-black text-5xl"
+                      style={{ backgroundColor: '#f3f4f6', color: '#1a1a54' }}
+                    >
+                      {activePassReg.name.substring(0, 2).toUpperCase()}
+                    </div>
+                  )}
+
+                  {/* Premium VIP / Member Badge */}
+                  <div className="mt-3 z-20">
+                    {parseFloat(activePassReg.amount || '0') >= 1500 ? (
+                      <span className="inline-flex items-center gap-1.5 px-4 py-1 rounded-full text-[10px] font-black bg-[#101130] text-[#ff8c00] border border-[#ff8c00]/50 shadow-md uppercase tracking-widest">
+                        ★ VIP
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1.5 px-4 py-1 rounded-full text-[10px] font-black bg-[#101130] text-[#38bdf8] border border-[#38bdf8]/50 shadow-md uppercase tracking-widest">
+                        ● Member
+                      </span>
+                    )}
+                  </div>
+
+                  {/* User Information */}
+                  <h2 className="text-xl md:text-2xl font-black mt-3 tracking-tight text-center uppercase" style={{ color: '#1a1a54' }}>{activePassReg.name}</h2>
+                  
+                  {/* User Occupation or Subtitle */}
+                  <p className="text-[9px] font-black tracking-[0.3em] uppercase mt-1 text-secondary text-center">
+                    {activePassReg.occupation || 'MEMBER'}
+                  </p>
+
+                  {/* Phone & Email with elegant badge circles */}
+                  <div className="flex flex-col items-center gap-1.5 mt-2.5 text-xs font-bold text-gray-500">
+                    <span className="flex items-center gap-2">
+                      <span className="w-5.5 h-5.5 rounded-full bg-secondary/10 flex items-center justify-center border border-secondary/20">
+                        <Phone className="w-3.5 h-3.5 text-secondary" />
+                      </span>
+                      {activePassReg.phone}
+                    </span>
+                    <span className="flex items-center gap-2">
+                      <span className="w-5.5 h-5.5 rounded-full bg-secondary/10 flex items-center justify-center border border-secondary/20">
+                        <Mail className="w-3.5 h-3.5 text-secondary" />
+                      </span>
+                      {activePassReg.email}
+                    </span>
+                  </div>
+
+                  {/* Ticket Details Grid as Card Widgets */}
+                  <div className="w-full grid grid-cols-2 gap-2.5 py-4 my-3.5 border-t border-b border-gray-100">
+                    {/* Location */}
+                    <div className="bg-slate-50/70 border border-slate-100 p-2.5 rounded-xl flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm border border-slate-100 flex-shrink-0">
+                        <MapPin className="w-3.5 h-3.5 text-[#1a1a54]" />
+                      </div>
+                      <div className="min-w-0">
+                        <span className="text-[7.5px] font-black uppercase tracking-wider text-gray-400 block leading-none">Location</span>
+                        <span className="font-bold text-[10.5px] text-[#1a1a54] block truncate mt-0.5">Kuakata Sea Beach</span>
+                      </div>
+                    </div>
+                    
+                    {/* Date */}
+                    <div className="bg-slate-50/70 border border-slate-100 p-2.5 rounded-xl flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm border border-slate-100 flex-shrink-0">
+                        <Calendar className="w-3.5 h-3.5 text-[#1a1a54]" />
+                      </div>
+                      <div className="min-w-0">
+                        <span className="text-[7.5px] font-black uppercase tracking-wider text-gray-400 block leading-none">Date</span>
+                        <span className="font-bold text-[10.5px] text-[#1a1a54] block truncate mt-0.5">Dec 31, 2026</span>
+                      </div>
+                    </div>
+
+                    {/* T-Shirt */}
+                    <div className="bg-slate-50/70 border border-slate-100 p-2.5 rounded-xl flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm border border-slate-100 flex-shrink-0">
+                        <Shirt className="w-3.5 h-3.5 text-[#1a1a54]" />
+                      </div>
+                      <div className="min-w-0">
+                        <span className="text-[7.5px] font-black uppercase tracking-wider text-gray-400 block leading-none">T-Shirt Size</span>
+                        <span className="font-bold text-[10.5px] text-[#1a1a54] block truncate mt-0.5">{activePassReg.tshirtSize}</span>
+                      </div>
+                    </div>
+
+                    {/* Pickup Location */}
+                    <div className="bg-slate-50/70 border border-slate-100 p-2.5 rounded-xl flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm border border-slate-100 flex-shrink-0">
+                        <Navigation className="w-3.5 h-3.5 text-secondary" />
+                      </div>
+                      <div className="min-w-0">
+                        <span className="text-[7.5px] font-black uppercase tracking-wider text-gray-400 block leading-none">Pickup Location</span>
+                        <span className="font-bold text-[10.5px] text-secondary block truncate mt-0.5">{activePassReg.pickupLocation || 'Not Specified'}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* dynamic QR Code for Gate Verification */}
+                  {qrCodeUrl && (
+                    <div className="flex flex-col items-center mt-3">
+                      <div className="p-2.5 bg-white border border-amber-500/20 rounded-[1.25rem] shadow-md">
+                        <img src={qrCodeUrl} alt="Verify Pass" className="w-20 h-20" />
+                      </div>
+                      <div className="flex items-center gap-2 mt-3">
+                        <span className="w-5 h-[1px] bg-amber-500/30" />
+                        <span className="text-[8.5px] font-black uppercase tracking-[0.15em] text-[#1a1a54]">Scan to Verify Pass</span>
+                        <span className="w-5 h-[1px] bg-amber-500/30" />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Unity in Diversity Slogan Footer Bar */}
+                  <div 
+                    className="w-full py-4 flex flex-col items-center justify-center relative overflow-hidden mt-4"
+                    style={{ 
+                      backgroundColor: '#101130', 
+                      borderBottomLeftRadius: '3rem', 
+                      borderBottomRightRadius: '3rem'
+                    }}
+                  >
+                    {/* Diagonal Stripe Accents in Footer */}
+                    <div className="absolute inset-0 bg-[linear-gradient(45deg,rgba(255,255,255,0.02)_25%,transparent_25%,transparent_50%,rgba(255,255,255,0.02)_50%,rgba(255,255,255,0.02)_75%,transparent_75%,transparent)] bg-[size:10px_10px] pointer-events-none" />
+                    
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-secondary relative z-10">
+                      "Unity is Diversity"
+                    </p>
+                    <div className="w-12 h-[2px] bg-secondary mt-1 rounded-full relative z-10" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Modal Actions */}
+              <div className="flex gap-4 w-full">
+                <button 
+                  onClick={handleDownload}
+                  disabled={isDownloading}
+                  className="flex-1 py-4 bg-secondary text-white hover:bg-opacity-95 rounded-2xl font-black text-sm transition-all flex items-center justify-center gap-2.5 shadow-xl shadow-secondary/10 hover:scale-[1.02] active:scale-[0.98] cursor-pointer disabled:opacity-75"
+                >
+                  {isDownloading ? <Loader2 className="w-5 h-5 animate-spin text-white" /> : <Download className="w-4.5 h-4.5 text-white" />}
+                  <span>Download Pass Image</span>
+                </button>
+                <button 
+                  onClick={() => setActivePassReg(null)}
+                  className="px-6 py-4 bg-white text-gray-500 border border-gray-200 hover:bg-gray-50 rounded-2xl font-black text-sm transition-all flex items-center justify-center shadow-sm hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+                >
+                  Close
+                </button>
               </div>
             </motion.div>
           </div>

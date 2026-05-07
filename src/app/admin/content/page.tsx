@@ -12,7 +12,8 @@ import {
   Sparkles,
   Camera,
   Layout,
-  CreditCard
+  CreditCard,
+  Power
 } from 'lucide-react';
 
 const ContentAdmin = () => {
@@ -25,6 +26,10 @@ const ContentAdmin = () => {
   const [bkashNumber, setBkashNumber] = useState('01732657219');
   const [nagadNumber, setNagadNumber] = useState('01732657219');
   const [rocketNumber, setRocketNumber] = useState('01732657219');
+
+  // Registration Status Controls
+  const [regStatus, setRegStatus] = useState('open');
+  const [regClosedMessage, setRegClosedMessage] = useState('');
   
   // Featured Event Settings
   const [featuredEvent, setFeaturedEvent] = useState({
@@ -93,6 +98,13 @@ const ContentAdmin = () => {
 
       const rocketSetting = data.find((c: any) => c.key === 'rocket_number');
       if (rocketSetting) setRocketNumber(rocketSetting.value);
+
+      // Registration Toggle & Closed Message
+      const regStatusSetting = data.find((c: any) => c.key === 'registration_status');
+      if (regStatusSetting) setRegStatus(regStatusSetting.value);
+
+      const regMessageSetting = data.find((c: any) => c.key === 'registration_closed_message');
+      if (regMessageSetting) setRegClosedMessage(regMessageSetting.value);
     } catch (error) {
       console.error(error);
     } finally {
@@ -132,6 +144,10 @@ const ContentAdmin = () => {
       await handleUpdateSetting('bkash_number', bkashNumber);
       await handleUpdateSetting('nagad_number', nagadNumber);
       await handleUpdateSetting('rocket_number', rocketNumber);
+
+      // Save Registration Controls
+      await handleUpdateSetting('registration_status', regStatus);
+      await handleUpdateSetting('registration_closed_message', regClosedMessage);
       
       Swal.fire('Success', 'Settings updated successfully!', 'success');
     } catch (error) {
@@ -246,6 +262,64 @@ const ContentAdmin = () => {
                 <div className="space-y-2">
                   <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Rocket Number</label>
                   <input type="text" value={rocketNumber} onChange={e => setRocketNumber(e.target.value)} className="w-full px-5 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl outline-none font-bold text-primary" placeholder="e.g. 017XXXXXXXX" />
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Registration Status Controls */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.08 }}
+              className="bg-white rounded-[3rem] p-10 border border-gray-100 shadow-xl shadow-primary/5 h-fit w-full"
+            >
+              <div className="flex items-center gap-4 mb-8">
+                <div className={`p-4 rounded-2xl transition-all duration-300 ${regStatus === 'open' ? 'bg-emerald-50 text-emerald-500' : 'bg-rose-50 text-rose-500'}`}>
+                  <Power className="w-8 h-8" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-black text-primary">Registration Status</h2>
+                  <p className="text-sm text-gray-400 font-bold">Turn registration form ON or OFF.</p>
+                </div>
+              </div>
+
+              <div className="space-y-6">
+                <div className="flex gap-4">
+                  <button
+                    type="button"
+                    onClick={() => setRegStatus('open')}
+                    className={`flex-1 py-4 rounded-2xl font-black text-sm uppercase tracking-wider border-2 transition-all flex items-center justify-center gap-2 ${
+                      regStatus === 'open' 
+                        ? 'border-emerald-500 bg-emerald-50/50 text-emerald-600 shadow-lg shadow-emerald-500/5' 
+                        : 'border-gray-100 bg-gray-50 text-gray-400 hover:border-gray-200'
+                    }`}
+                  >
+                    <span className={`w-2.5 h-2.5 rounded-full ${regStatus === 'open' ? 'bg-emerald-500 animate-pulse' : 'bg-gray-300'}`} />
+                    Form Open
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setRegStatus('closed')}
+                    className={`flex-1 py-4 rounded-2xl font-black text-sm uppercase tracking-wider border-2 transition-all flex items-center justify-center gap-2 ${
+                      regStatus === 'closed' 
+                        ? 'border-rose-500 bg-rose-50/50 text-rose-600 shadow-lg shadow-rose-500/5' 
+                        : 'border-gray-100 bg-gray-50 text-gray-400 hover:border-gray-200'
+                    }`}
+                  >
+                    <span className={`w-2.5 h-2.5 rounded-full ${regStatus === 'closed' ? 'bg-rose-500' : 'bg-gray-300'}`} />
+                    Form Closed
+                  </button>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Custom Closed Message</label>
+                  <textarea 
+                    value={regClosedMessage} 
+                    onChange={e => setRegClosedMessage(e.target.value)} 
+                    rows={3}
+                    className="w-full px-5 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl outline-none font-bold text-primary placeholder-gray-400 text-sm focus:bg-white focus:border-primary/20 transition-all" 
+                    placeholder="e.g. Registration time is over! Thank you everyone."
+                  />
                 </div>
               </div>
             </motion.div>

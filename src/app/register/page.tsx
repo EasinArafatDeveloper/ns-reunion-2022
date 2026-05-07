@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Navbar from '@/components/layout/Navbar';
 import { useLanguage } from '@/components/providers/LanguageProvider';
 import { motion } from 'framer-motion';
-import { User, Mail, Phone, Camera, BookOpen, Briefcase, Ruler, CreditCard, Send, Loader2, AlertCircle, MapPin, CheckCircle2, Download } from 'lucide-react';
+import { User, Mail, Phone, Camera, BookOpen, Briefcase, Ruler, CreditCard, Send, Loader2, AlertCircle, MapPin, CheckCircle2, Download, Calendar, Shirt, Navigation } from 'lucide-react';
 import Swal from 'sweetalert2';
 
 const RegisterPage = () => {
@@ -12,6 +12,28 @@ const RegisterPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [registeredData, setRegisteredData] = useState<any | null>(null);
   const [isDownloading, setIsDownloading] = useState(false);
+  const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
+
+  React.useEffect(() => {
+    if (registeredData) {
+      const origin = typeof window !== 'undefined' ? window.location.origin : '';
+      const verifyUrl = `${origin}/verify/${registeredData._id}`;
+      import('qrcode').then((QRCode) => {
+        QRCode.toDataURL(verifyUrl, {
+          margin: 1,
+          width: 200,
+          color: {
+            dark: '#1a1a54',
+            light: '#ffffff'
+          }
+        })
+        .then(url => setQrCodeUrl(url))
+        .catch(err => console.error('QR generation error:', err));
+      });
+    } else {
+      setQrCodeUrl('');
+    }
+  }, [registeredData]);
 
   const handleDownload = async () => {
     if (!registeredData) return;
@@ -90,6 +112,9 @@ const RegisterPage = () => {
     rocket: '01732657219'
   });
 
+  const [regStatus, setRegStatus] = useState<'open' | 'closed'>('open');
+  const [closedMessage, setClosedMessage] = useState<string>('');
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -112,7 +137,7 @@ const RegisterPage = () => {
   });
 
   React.useEffect(() => {
-    const fetchPaymentNumbers = async () => {
+    const fetchSettings = async () => {
       try {
         const res = await fetch('/api/admin/content');
         const data = await res.json();
@@ -122,11 +147,17 @@ const RegisterPage = () => {
         const rocketVal = data.find((c: any) => c.key === 'rocket_number')?.value || '01732657219';
         
         setPaymentNumbers({ bkash: bkashVal, nagad: nagadVal, rocket: rocketVal });
+
+        const statusVal = data.find((c: any) => c.key === 'registration_status')?.value || 'open';
+        const messageVal = data.find((c: any) => c.key === 'registration_closed_message')?.value || '';
+        
+        setRegStatus(statusVal as 'open' | 'closed');
+        setClosedMessage(messageVal);
       } catch (err) {
-        console.error('Error fetching payment numbers:', err);
+        console.error('Error fetching settings:', err);
       }
     };
-    fetchPaymentNumbers();
+    fetchSettings();
   }, []);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -239,15 +270,43 @@ const RegisterPage = () => {
       <div className="pt-32 max-w-4xl mx-auto px-4 relative z-10">
         
         {!registeredData ? (
-          <>
-            <div className="text-center mb-12">
-              <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-4xl md:text-6xl font-black text-primary mb-4">
-                {language === 'bn' ? 'রেজিস্ট্রেশন ফরম' : 'Registration Form'}
-              </motion.h1>
-              <p className="text-gray-500 font-bold text-lg">
-                {language === 'bn' ? 'আপনার তথ্য দিয়ে রিইউনিয়ন ২০২২-এ অংশগ্রহণ নিশ্চিত করুন' : 'Join the grand celebration by filling out your details below'}
+          regStatus === 'closed' ? (
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }} 
+              animate={{ opacity: 1, scale: 1 }} 
+              className="bg-white rounded-[2.5rem] shadow-2xl shadow-primary/5 p-12 md:p-16 border border-gray-100 flex flex-col items-center text-center max-w-2xl mx-auto animate-fadeIn"
+            >
+              <div className="w-24 h-24 rounded-full bg-amber-500/10 flex items-center justify-center border border-amber-500/20 mb-8 animate-pulse">
+                <AlertCircle className="w-12 h-12 text-amber-500" />
+              </div>
+              
+              <h1 className="text-3xl md:text-4xl font-black text-primary mb-4 leading-tight uppercase tracking-tight">
+                {language === 'bn' ? 'রেজিস্ট্রেশন বন্ধ রয়েছে' : 'Registration is Closed'}
+              </h1>
+              
+              <p className="text-gray-500 font-bold text-lg mb-8 max-w-md">
+                {closedMessage || (language === 'bn' 
+                  ? 'দুঃখিত, এই ইভেন্টের জন্য রেজিস্ট্রেশন সময়সীমা শেষ হয়ে গিয়েছে অথবা সাময়িকভাবে বন্ধ আছে।' 
+                  : 'Sorry, the registration period for this event has ended or is temporarily suspended.')}
               </p>
-            </div>
+              
+              <div className="w-full h-[1.5px] bg-slate-100 mb-8" />
+              
+              <div className="flex flex-col gap-2 items-center text-sm font-bold text-gray-400 uppercase tracking-wider">
+                <span>NS Unity Forum 2022</span>
+                <span className="text-secondary">Reunion 2.0 (2026)</span>
+              </div>
+            </motion.div>
+          ) : (
+            <>
+              <div className="text-center mb-12">
+                <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-4xl md:text-6xl font-black text-primary mb-4">
+                  {language === 'bn' ? 'রেজিস্ট্রেশন ফরম' : 'Registration Form'}
+                </motion.h1>
+                <p className="text-gray-500 font-bold text-lg">
+                  {language === 'bn' ? 'আপনার তথ্য দিয়ে রিইউনিয়ন ২০২২-এ অংশগ্রহণ নিশ্চিত করুন' : 'Join the grand celebration by filling out your details below'}
+                </p>
+              </div>
 
         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-white rounded-[2.5rem] shadow-2xl shadow-primary/5 p-8 md:p-12 border border-gray-100">
           <form onSubmit={handleSubmit} className="space-y-10">
@@ -470,7 +529,8 @@ const RegisterPage = () => {
             </button>
           </form>
         </motion.div>
-          </>
+            </>
+          )
         ) : (
           <motion.div 
             initial={{ opacity: 0, scale: 0.9 }} 
@@ -507,103 +567,193 @@ const RegisterPage = () => {
               
               {/* Ticket Top Branding Accent Banner */}
               <div 
-                className="p-8 relative overflow-hidden flex flex-col items-center"
-                style={{ backgroundColor: '#1a1a54', color: '#ffffff' }}
+                className="h-[180px] relative overflow-hidden flex flex-col items-center justify-center p-6"
+                style={{ backgroundColor: '#101130', color: '#ffffff' }}
               >
+                {/* Left side skewed golden gradient accent */}
+                <div className="absolute top-0 left-0 w-32 h-full bg-gradient-to-r from-amber-500 to-orange-600 opacity-90 transform -skew-x-12 -translate-x-16 pointer-events-none" />
+                
+                {/* Right side diagonal lines and gradient accent */}
+                <div className="absolute top-0 right-0 w-40 h-full bg-gradient-to-l from-amber-500/10 to-transparent opacity-50 pointer-events-none" />
+                <div className="absolute top-0 right-0 w-32 h-full bg-[linear-gradient(45deg,rgba(255,255,255,0.05)_25%,transparent_25%,transparent_50%,rgba(255,255,255,0.05)_50%,rgba(255,255,255,0.05)_75%,transparent_75%,transparent)] bg-[size:12px_12px] transform skew-x-12 pointer-events-none" />
+                
                 <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16 blur-2xl pointer-events-none" />
                 <div className="absolute top-0 left-0 w-32 h-32 bg-white/10 rounded-full -ml-16 -mt-16 blur-xl pointer-events-none" />
                 
                 {/* Custom Pass Badge Tag */}
                 <span 
-                  className="px-3.5 py-1 text-white rounded-full text-[10px] font-black tracking-widest uppercase mb-4 shadow-sm z-10"
+                  className="px-5 py-1.5 text-white rounded-full text-[11px] font-black tracking-widest uppercase mb-4 h-7 flex items-center justify-center shadow-[0_4px_12px_rgba(255,140,0,0.4)] z-10"
                   style={{ backgroundColor: '#ff8c00' }}
                 >
-                  {language === 'bn' ? 'অফিসিয়াল এন্ট্রি পাস' : 'Official Entry Pass'}
+                  Official Entry Pass
                 </span>
                 
-                <h3 className="text-3xl font-black tracking-tight mb-1 text-white z-10">Reunion 2.0 (2026)</h3>
+                {/* NS Unity Forum 2022 */}
+                <h3 className="text-2xl font-black tracking-tight mb-1 text-white z-10 text-center uppercase">NS Unity Forum 2022</h3>
                 
-                {/* Slogan Text: Unity is Diversity */}
-                <p 
-                  className="text-[11px] font-black uppercase tracking-widest mt-1 z-10"
-                  style={{ color: '#ff8c00' }}
-                >
-                  {language === 'bn' ? 'একতাই বল • Unity in Diversity' : 'Unity in Diversity'}
-                </p>
+                {/* Reunion 2.0 (2026) */}
+                <div className="flex items-center gap-2 z-10">
+                  <span className="w-4 h-[1px] bg-secondary" />
+                  <p 
+                    className="text-[10px] font-black uppercase tracking-widest"
+                    style={{ color: '#ff8c00' }}
+                  >
+                    Reunion 2.0 (2026)
+                  </p>
+                  <span className="w-4 h-[1px] bg-secondary" />
+                </div>
               </div>
 
               {/* Scalloped side ticket cutouts */}
               <div 
-                className="absolute top-[180px] -left-3 w-6 h-6 border-r rounded-full z-10 shadow-inner" 
+                className="absolute top-[168px] -left-3 w-6 h-6 border-r rounded-full z-10 shadow-inner" 
                 style={{ backgroundColor: '#F8FAFC', borderColor: '#f3f4f6' }}
               />
               <div 
-                className="absolute top-[180px] -right-3 w-6 h-6 border-l rounded-full z-10 shadow-inner" 
+                className="absolute top-[168px] -right-3 w-6 h-6 border-l rounded-full z-10 shadow-inner" 
                 style={{ backgroundColor: '#F8FAFC', borderColor: '#f3f4f6' }}
               />
               
               {/* Tear-off Dashed Divider Line */}
               <div 
-                className="absolute top-[191px] left-6 right-6 border-t-2 border-dashed z-10" 
+                className="absolute top-[180px] left-6 right-6 border-t-2 border-dashed z-10" 
                 style={{ borderTopColor: '#e5e7eb' }}
               />
 
               {/* Ticket Detail Body */}
-              <div className="p-8 pt-12 flex flex-col items-center bg-white">
+              <div className="p-6 pt-9 flex flex-col items-center bg-white">
                 
-                {/* Circular Profile Image thumbnail */}
+                {/* Circular Profile Image thumbnail with gold border ring */}
                 {registeredData.photo ? (
-                  <div className="w-28 h-28 rounded-full overflow-hidden border-4 border-white shadow-xl relative -mt-20 z-20">
+                  <div className="w-36 h-36 rounded-full overflow-hidden border-4 border-white ring-2 ring-secondary/50 shadow-xl relative -mt-20 z-20">
                     <img src={registeredData.photo} alt={registeredData.name} className="w-full h-full object-cover" />
                   </div>
                 ) : (
                   <div 
-                    className="w-28 h-28 rounded-full border-4 border-white shadow-xl relative -mt-20 z-20 flex items-center justify-center font-black text-3xl"
+                    className="w-36 h-36 rounded-full border-4 border-white ring-2 ring-secondary/50 shadow-xl relative -mt-20 z-20 flex items-center justify-center font-black text-5xl"
                     style={{ backgroundColor: '#f3f4f6', color: '#1a1a54' }}
                   >
                     {registeredData.name.substring(0, 2).toUpperCase()}
                   </div>
                 )}
 
+                {/* Premium VIP / Member Badge */}
+                <div className="mt-3 z-20">
+                  {parseFloat(registeredData.amount || '0') >= 1500 ? (
+                    <span className="inline-flex items-center gap-1.5 px-4 py-1 rounded-full text-[10px] font-black bg-[#101130] text-[#ff8c00] border border-[#ff8c00]/50 shadow-md uppercase tracking-widest">
+                      ★ VIP
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1.5 px-4 py-1 rounded-full text-[10px] font-black bg-[#101130] text-[#38bdf8] border border-[#38bdf8]/50 shadow-md uppercase tracking-widest">
+                      ● Member
+                    </span>
+                  )}
+                </div>
+
                 {/* User Information */}
-                <h2 className="text-2xl font-black mt-4 tracking-tight" style={{ color: '#1a1a54' }}>{registeredData.name}</h2>
-                <p className="text-xs font-black tracking-widest uppercase mt-1" style={{ color: '#ff8c00' }}>
-                  ID: #{registeredData._id ? registeredData._id.toString().slice(-6).toUpperCase() : 'PENDING'}
+                <h2 className="text-xl md:text-2xl font-black mt-3 tracking-tight text-center uppercase" style={{ color: '#1a1a54' }}>{registeredData.name}</h2>
+                
+                {/* User Occupation or Subtitle */}
+                <p className="text-[9px] font-black tracking-[0.3em] uppercase mt-1 text-secondary text-center">
+                  {registeredData.occupation || 'MEMBER'}
                 </p>
 
-                {/* Ticket Details Grid */}
-                <div 
-                  className="w-full grid grid-cols-2 gap-y-5 gap-x-4 border-t border-b py-6 my-6"
-                  style={{ borderTopColor: '#f3f4f6', borderBottomColor: '#f3f4f6' }}
-                >
-                  <div className="text-left">
-                    <span className="text-[9px] font-black uppercase tracking-widest block" style={{ color: '#9ca3af' }}>{language === 'bn' ? 'স্থান' : 'Location'}</span>
-                    <span className="font-bold text-sm" style={{ color: '#1a1a54' }}>{language === 'bn' ? 'কুয়াকাটা সমুদ্র সৈকত' : 'Kuakata Sea Beach'}</span>
+                {/* Phone & Email with elegant badge circles */}
+                <div className="flex flex-col items-center gap-1.5 mt-2.5 text-xs font-bold text-gray-500">
+                  <span className="flex items-center gap-2">
+                    <span className="w-5.5 h-5.5 rounded-full bg-secondary/10 flex items-center justify-center border border-secondary/20">
+                      <Phone className="w-3.5 h-3.5 text-secondary" />
+                    </span>
+                    {registeredData.phone}
+                  </span>
+                  <span className="flex items-center gap-2">
+                    <span className="w-5.5 h-5.5 rounded-full bg-secondary/10 flex items-center justify-center border border-secondary/20">
+                      <Mail className="w-3.5 h-3.5 text-secondary" />
+                    </span>
+                    {registeredData.email}
+                  </span>
+                </div>
+
+                {/* Ticket Details Grid as Card Widgets */}
+                <div className="w-full grid grid-cols-2 gap-2.5 py-4 my-3.5 border-t border-b border-gray-100">
+                  {/* Location */}
+                  <div className="bg-slate-50/70 border border-slate-100 p-2.5 rounded-xl flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm border border-slate-100 flex-shrink-0">
+                      <MapPin className="w-3.5 h-3.5 text-[#1a1a54]" />
+                    </div>
+                    <div className="min-w-0">
+                      <span className="text-[7.5px] font-black uppercase tracking-wider text-gray-400 block leading-none">Location</span>
+                      <span className="font-bold text-[10.5px] text-[#1a1a54] block truncate mt-0.5">Kuakata Sea Beach</span>
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <span className="text-[9px] font-black uppercase tracking-widest block" style={{ color: '#9ca3af' }}>{language === 'bn' ? 'তারিখ' : 'Date'}</span>
-                    <span className="font-bold text-sm" style={{ color: '#1a1a54' }}>{language === 'bn' ? '৩১শে ডিসেম্বর, ২০২৬' : 'Dec 31, 2026'}</span>
+                  
+                  {/* Date */}
+                  <div className="bg-slate-50/70 border border-slate-100 p-2.5 rounded-xl flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm border border-slate-100 flex-shrink-0">
+                      <Calendar className="w-3.5 h-3.5 text-[#1a1a54]" />
+                    </div>
+                    <div className="min-w-0">
+                      <span className="text-[7.5px] font-black uppercase tracking-wider text-gray-400 block leading-none">Date</span>
+                      <span className="font-bold text-[10.5px] text-[#1a1a54] block truncate mt-0.5">Dec 31, 2026</span>
+                    </div>
                   </div>
-                  <div className="text-left">
-                    <span className="text-[9px] font-black uppercase tracking-widest block" style={{ color: '#9ca3af' }}>{language === 'bn' ? 'টি-শার্ট সাইজ' : 'T-Shirt Size'}</span>
-                    <span className="font-bold text-sm" style={{ color: '#1a1a54' }}>{registeredData.tshirtSize}</span>
+
+                  {/* T-Shirt */}
+                  <div className="bg-slate-50/70 border border-slate-100 p-2.5 rounded-xl flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm border border-slate-100 flex-shrink-0">
+                      <Shirt className="w-3.5 h-3.5 text-[#1a1a54]" />
+                    </div>
+                    <div className="min-w-0">
+                      <span className="text-[7.5px] font-black uppercase tracking-wider text-gray-400 block leading-none">T-Shirt Size</span>
+                      <span className="font-bold text-[10.5px] text-[#1a1a54] block truncate mt-0.5">{registeredData.tshirtSize}</span>
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <span className="text-[9px] font-black uppercase tracking-widest block" style={{ color: '#9ca3af' }}>{language === 'bn' ? 'পিকআপ লোকেশন' : 'Pickup Location'}</span>
-                    <span className="font-bold text-sm" style={{ color: '#ff8c00' }}>{registeredData.pickupLocation || 'Not Specified'}</span>
+
+                  {/* Pickup Location */}
+                  <div className="bg-slate-50/70 border border-slate-100 p-2.5 rounded-xl flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm border border-slate-100 flex-shrink-0">
+                      <Navigation className="w-3.5 h-3.5 text-secondary" />
+                    </div>
+                    <div className="min-w-0">
+                      <span className="text-[7.5px] font-black uppercase tracking-wider text-gray-400 block leading-none">Pickup Location</span>
+                      <span className="font-bold text-[10.5px] text-secondary block truncate mt-0.5">{registeredData.pickupLocation || 'Not Specified'}</span>
+                    </div>
                   </div>
                 </div>
 
-                {/* Footer instructions inside ticket */}
-                <div className="text-center max-w-xs">
-                  <p className="text-[10px] font-bold leading-relaxed" style={{ color: '#9ca3af' }}>
-                    {language === 'bn' 
-                      ? 'অ্যাডমিন প্যানেল থেকে পেমেন্ট ভেরিফাই হওয়ার পর এই টিকিটটি সম্পূর্ণ কার্যকর হবে।' 
-                      : 'This pass will become fully active once the administrator verifies your transaction.'}
+                {/* dynamic QR Code for Gate Verification */}
+                {qrCodeUrl && (
+                  <div className="flex flex-col items-center mt-3">
+                    <div className="p-2.5 bg-white border border-amber-500/20 rounded-[1.25rem] shadow-md">
+                      <img src={qrCodeUrl} alt="Verify Pass" className="w-20 h-20" />
+                    </div>
+                    <div className="flex items-center gap-2 mt-3">
+                      <span className="w-5 h-[1px] bg-amber-500/30" />
+                      <span className="text-[8.5px] font-black uppercase tracking-[0.15em] text-[#1a1a54]">Scan to Verify Pass</span>
+                      <span className="w-5 h-[1px] bg-amber-500/30" />
+                    </div>
+                  </div>
+                )}
+
+                {/* Unity in Diversity Slogan Footer Bar */}
+                <div 
+                  className="w-full py-4 flex flex-col items-center justify-center relative overflow-hidden mt-4"
+                  style={{ 
+                    backgroundColor: '#101130', 
+                    borderBottomLeftRadius: '3rem', 
+                    borderBottomRightRadius: '3rem'
+                  }}
+                >
+                  {/* Diagonal Stripe Accents in Footer */}
+                  <div className="absolute inset-0 bg-[linear-gradient(45deg,rgba(255,255,255,0.02)_25%,transparent_25%,transparent_50%,rgba(255,255,255,0.02)_50%,rgba(255,255,255,0.02)_75%,transparent_75%,transparent)] bg-[size:10px_10px] pointer-events-none" />
+                  
+                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-secondary relative z-10">
+                    "Unity is Diversity"
                   </p>
-                </div>
+                  <div className="w-12 h-[2px] bg-secondary mt-1 rounded-full relative z-10" />
               </div>
             </div>
+          </div>
 
             {/* Direct Instant Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 mt-12 w-full max-w-md">
