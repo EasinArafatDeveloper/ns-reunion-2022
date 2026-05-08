@@ -561,13 +561,13 @@ const RegisterPage = () => {
             {/* Premium Digital Entry Ticket Pass Card Wrapper */}
             <div 
               id="digital-ticket"
-              className="relative w-full max-w-md bg-white border rounded-[3rem] shadow-2xl overflow-hidden p-[1px]"
+              className="relative w-full max-w-[340px] md:max-w-md bg-white border rounded-[2rem] md:rounded-[3rem] shadow-2xl overflow-hidden p-[1px]"
               style={{ borderColor: '#f3f4f6' }}
             >
               
               {/* Ticket Top Branding Accent Banner */}
               <div 
-                className="h-[180px] relative overflow-hidden flex flex-col items-center justify-center p-6"
+                className="h-[125px] md:h-[180px] relative overflow-hidden flex flex-col items-center justify-center p-4 md:p-6"
                 style={{ backgroundColor: '#101130', color: '#ffffff' }}
               >
                 {/* Left side skewed golden gradient accent */}
@@ -575,62 +575,62 @@ const RegisterPage = () => {
                 
                 {/* Right side diagonal lines and gradient accent */}
                 <div className="absolute top-0 right-0 w-40 h-full bg-gradient-to-l from-amber-500/10 to-transparent opacity-50 pointer-events-none" />
+                <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16 blur-2xl pointer-events-none" />
                 <div className="absolute top-0 right-0 w-32 h-full bg-[linear-gradient(45deg,rgba(255,255,255,0.05)_25%,transparent_25%,transparent_50%,rgba(255,255,255,0.05)_50%,rgba(255,255,255,0.05)_75%,transparent_75%,transparent)] bg-[size:12px_12px] transform skew-x-12 pointer-events-none" />
                 
-                <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16 blur-2xl pointer-events-none" />
                 <div className="absolute top-0 left-0 w-32 h-32 bg-white/10 rounded-full -ml-16 -mt-16 blur-xl pointer-events-none" />
                 
                 {/* Custom Pass Badge Tag */}
                 <span 
-                  className="px-5 py-1.5 text-white rounded-full text-[11px] font-black tracking-widest uppercase mb-4 h-7 flex items-center justify-center shadow-[0_4px_12px_rgba(255,140,0,0.4)] z-10"
+                  className="px-4 py-1 md:px-5 md:py-1.5 text-white rounded-full text-[9px] md:text-[11px] font-black tracking-widest uppercase -mt-1.5 md:-mt-3 mb-1.5 md:mb-3 h-6 md:h-7 flex items-center justify-center shadow-[0_4px_12px_rgba(255,140,0,0.4)] z-10"
                   style={{ backgroundColor: '#ff8c00' }}
                 >
                   Official Entry Pass
                 </span>
                 
                 {/* NS Unity Forum 2022 */}
-                <h3 className="text-2xl font-black tracking-tight mb-1 text-white z-10 text-center uppercase">NS Unity Forum 2022</h3>
+                <h3 className="text-lg md:text-2xl font-black tracking-tight mb-0.5 md:mb-1 text-white z-10 text-center uppercase">NS Unity Forum 2022</h3>
                 
                 {/* Reunion 2.0 (2026) */}
-                <div className="flex items-center gap-2 z-10">
-                  <span className="w-4 h-[1px] bg-secondary" />
+                <div className="flex items-center gap-1.5 md:gap-2 z-10 -mt-0.5 md:-mt-1">
+                  <span className="w-3 md:w-4 h-[1px] bg-secondary" />
                   <p 
-                    className="text-[10px] font-black uppercase tracking-widest"
+                    className="text-[10px] md:text-[12px] font-black uppercase tracking-widest"
                     style={{ color: '#ff8c00' }}
                   >
                     Reunion 2.0 (2026)
                   </p>
-                  <span className="w-4 h-[1px] bg-secondary" />
+                  <span className="w-3 md:w-4 h-[1px] bg-secondary" />
                 </div>
               </div>
 
               {/* Scalloped side ticket cutouts */}
               <div 
-                className="absolute top-[168px] -left-3 w-6 h-6 border-r rounded-full z-10 shadow-inner" 
+                className="absolute top-[113px] md:top-[168px] -left-3 w-6 h-6 border-r rounded-full z-10 shadow-inner" 
                 style={{ backgroundColor: '#F8FAFC', borderColor: '#f3f4f6' }}
               />
               <div 
-                className="absolute top-[168px] -right-3 w-6 h-6 border-l rounded-full z-10 shadow-inner" 
+                className="absolute top-[113px] md:top-[168px] -right-3 w-6 h-6 border-l rounded-full z-10 shadow-inner" 
                 style={{ backgroundColor: '#F8FAFC', borderColor: '#f3f4f6' }}
               />
               
               {/* Tear-off Dashed Divider Line */}
               <div 
-                className="absolute top-[180px] left-6 right-6 border-t-2 border-dashed z-10" 
+                className="absolute top-[125px] md:top-[180px] left-6 right-6 border-t-2 border-dashed z-10" 
                 style={{ borderTopColor: '#e5e7eb' }}
               />
 
               {/* Ticket Detail Body */}
-              <div className="p-6 pt-9 flex flex-col items-center bg-white">
+              <div className="p-4 pt-6 md:p-6 md:pt-9 flex flex-col items-center bg-white">
                 
                 {/* Circular Profile Image thumbnail with gold border ring */}
                 {registeredData.photo ? (
-                  <div className="w-36 h-36 rounded-full overflow-hidden border-4 border-white ring-2 ring-secondary/50 shadow-xl relative -mt-20 z-20">
+                  <div className="w-24 h-24 md:w-36 md:h-36 rounded-full overflow-hidden border-4 border-white ring-2 ring-secondary/50 shadow-xl relative -mt-16 md:-mt-20 z-20">
                     <img src={registeredData.photo} alt={registeredData.name} className="w-full h-full object-cover" />
                   </div>
                 ) : (
                   <div 
-                    className="w-36 h-36 rounded-full border-4 border-white ring-2 ring-secondary/50 shadow-xl relative -mt-20 z-20 flex items-center justify-center font-black text-5xl"
+                    className="w-24 h-24 md:w-36 md:h-36 rounded-full border-4 border-white ring-2 ring-secondary/50 shadow-xl relative -mt-16 md:-mt-20 z-20 flex items-center justify-center font-black text-3xl md:text-5xl"
                     style={{ backgroundColor: '#f3f4f6', color: '#1a1a54' }}
                   >
                     {registeredData.name.substring(0, 2).toUpperCase()}
@@ -638,119 +638,116 @@ const RegisterPage = () => {
                 )}
 
                 {/* Premium VIP / Member Badge */}
-                <div className="mt-3 z-20">
+                <div className="mt-2 md:mt-3 z-20">
                   {parseFloat(registeredData.amount || '0') >= 1500 ? (
-                    <span className="inline-flex items-center gap-1.5 px-4 py-1 rounded-full text-[10px] font-black bg-[#101130] text-[#ff8c00] border border-[#ff8c00]/50 shadow-md uppercase tracking-widest">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-0.5 md:px-4 md:py-1 rounded-full text-[8.5px] md:text-[10px] font-black bg-[#101130] text-[#ff8c00] border border-[#ff8c00]/50 shadow-md uppercase tracking-widest">
                       ★ VIP
                     </span>
                   ) : (
-                    <span className="inline-flex items-center gap-1.5 px-4 py-1 rounded-full text-[10px] font-black bg-[#101130] text-[#38bdf8] border border-[#38bdf8]/50 shadow-md uppercase tracking-widest">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-0.5 md:px-4 md:py-1 rounded-full text-[8.5px] md:text-[10px] font-black bg-[#101130] text-[#38bdf8] border border-[#38bdf8]/50 shadow-md uppercase tracking-widest">
                       ● Member
                     </span>
                   )}
                 </div>
 
                 {/* User Information */}
-                <h2 className="text-xl md:text-2xl font-black mt-3 tracking-tight text-center uppercase" style={{ color: '#1a1a54' }}>{registeredData.name}</h2>
+                <h2 className="text-lg md:text-2xl font-black mt-2 md:mt-3 tracking-tight text-center uppercase" style={{ color: '#1a1a54' }}>{registeredData.name}</h2>
                 
                 {/* User Occupation or Subtitle */}
-                <p className="text-[9px] font-black tracking-[0.3em] uppercase mt-1 text-secondary text-center">
+                <p className="text-[8px] md:text-[9px] font-black tracking-[0.25em] md:tracking-[0.3em] uppercase mt-0.5 md:mt-1 text-secondary text-center">
                   {registeredData.occupation || 'MEMBER'}
                 </p>
 
                 {/* Phone & Email with elegant badge circles */}
-                <div className="flex flex-col items-center gap-1.5 mt-2.5 text-xs font-bold text-gray-500">
-                  <span className="flex items-center gap-2">
-                    <span className="w-5.5 h-5.5 rounded-full bg-secondary/10 flex items-center justify-center border border-secondary/20">
-                      <Phone className="w-3.5 h-3.5 text-secondary" />
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-x-4 gap-y-1.5 mt-2 md:mt-2.5 text-[10px] md:text-xs font-bold text-gray-500">
+                  <span className="flex items-center gap-1.5">
+                    <span className="w-4.5 h-4.5 md:w-5.5 md:h-5.5 rounded-full bg-secondary/10 flex items-center justify-center border border-secondary/20 flex-shrink-0">
+                      <Phone className="w-2.5 h-2.5 md:w-3.5 md:h-3.5 text-secondary" />
                     </span>
-                    {registeredData.phone}
+                    <span className="truncate">{registeredData.phone}</span>
                   </span>
-                  <span className="flex items-center gap-2">
-                    <span className="w-5.5 h-5.5 rounded-full bg-secondary/10 flex items-center justify-center border border-secondary/20">
-                      <Mail className="w-3.5 h-3.5 text-secondary" />
+                  <span className="hidden sm:inline text-gray-300">|</span>
+                  <span className="flex items-center gap-1.5">
+                    <span className="w-4.5 h-4.5 md:w-5.5 md:h-5.5 rounded-full bg-secondary/10 flex items-center justify-center border border-secondary/20 flex-shrink-0">
+                      <Mail className="w-2.5 h-2.5 md:w-3.5 md:h-3.5 text-secondary" />
                     </span>
-                    {registeredData.email}
+                    <span className="truncate max-w-[150px] sm:max-w-none">{registeredData.email}</span>
                   </span>
                 </div>
 
                 {/* Ticket Details Grid as Card Widgets */}
-                <div className="w-full grid grid-cols-2 gap-2.5 py-4 my-3.5 border-t border-b border-gray-100">
+                <div className="w-full grid grid-cols-2 gap-2 md:gap-2.5 py-2.5 md:py-4 my-2.5 md:my-3.5 border-t border-b border-gray-100">
                   {/* Location */}
-                  <div className="bg-slate-50/70 border border-slate-100 p-2.5 rounded-xl flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm border border-slate-100 flex-shrink-0">
-                      <MapPin className="w-3.5 h-3.5 text-[#1a1a54]" />
+                  <div className="bg-slate-50/70 border border-slate-100 p-2 md:p-2.5 rounded-xl flex items-center gap-1.5 md:gap-2 min-w-0">
+                    <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-white flex items-center justify-center shadow-sm border border-slate-100 flex-shrink-0">
+                      <MapPin className="w-3 h-3 md:w-3.5 md:h-3.5 text-[#1a1a54]" />
                     </div>
                     <div className="min-w-0">
-                      <span className="text-[7.5px] font-black uppercase tracking-wider text-gray-400 block leading-none">Location</span>
-                      <span className="font-bold text-[10.5px] text-[#1a1a54] block truncate mt-0.5">Kuakata Sea Beach</span>
+                      <span className="text-[6.5px] md:text-[7.5px] font-black uppercase tracking-wider text-gray-400 block leading-none">Location</span>
+                      <span className="font-bold text-[9px] md:text-[10.5px] text-[#1a1a54] block truncate mt-0.5">Kuakata Sea Beach</span>
                     </div>
                   </div>
                   
                   {/* Date */}
-                  <div className="bg-slate-50/70 border border-slate-100 p-2.5 rounded-xl flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm border border-slate-100 flex-shrink-0">
-                      <Calendar className="w-3.5 h-3.5 text-[#1a1a54]" />
+                  <div className="bg-slate-50/70 border border-slate-100 p-2 md:p-2.5 rounded-xl flex items-center gap-1.5 md:gap-2 min-w-0">
+                    <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-white flex items-center justify-center shadow-sm border border-slate-100 flex-shrink-0">
+                      <Calendar className="w-3 h-3 md:w-3.5 md:h-3.5 text-[#1a1a54]" />
                     </div>
                     <div className="min-w-0">
-                      <span className="text-[7.5px] font-black uppercase tracking-wider text-gray-400 block leading-none">Date</span>
-                      <span className="font-bold text-[10.5px] text-[#1a1a54] block truncate mt-0.5">Dec 31, 2026</span>
+                      <span className="text-[6.5px] md:text-[7.5px] font-black uppercase tracking-wider text-gray-400 block leading-none">Date</span>
+                      <span className="font-bold text-[9px] md:text-[10.5px] text-[#1a1a54] block truncate mt-0.5">Dec 31, 2026</span>
                     </div>
                   </div>
 
                   {/* T-Shirt */}
-                  <div className="bg-slate-50/70 border border-slate-100 p-2.5 rounded-xl flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm border border-slate-100 flex-shrink-0">
-                      <Shirt className="w-3.5 h-3.5 text-[#1a1a54]" />
+                  <div className="bg-slate-50/70 border border-slate-100 p-2 md:p-2.5 rounded-xl flex items-center gap-1.5 md:gap-2 min-w-0">
+                    <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-white flex items-center justify-center shadow-sm border border-slate-100 flex-shrink-0">
+                      <Shirt className="w-3 h-3 md:w-3.5 md:h-3.5 text-[#1a1a54]" />
                     </div>
                     <div className="min-w-0">
-                      <span className="text-[7.5px] font-black uppercase tracking-wider text-gray-400 block leading-none">T-Shirt Size</span>
-                      <span className="font-bold text-[10.5px] text-[#1a1a54] block truncate mt-0.5">{registeredData.tshirtSize}</span>
+                      <span className="text-[6.5px] md:text-[7.5px] font-black uppercase tracking-wider text-gray-400 block leading-none">T-Shirt</span>
+                      <span className="font-bold text-[9px] md:text-[10.5px] text-[#1a1a54] block truncate mt-0.5">{registeredData.tshirtSize}</span>
                     </div>
                   </div>
 
                   {/* Pickup Location */}
-                  <div className="bg-slate-50/70 border border-slate-100 p-2.5 rounded-xl flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm border border-slate-100 flex-shrink-0">
-                      <Navigation className="w-3.5 h-3.5 text-secondary" />
+                  <div className="bg-slate-50/70 border border-slate-100 p-2 md:p-2.5 rounded-xl flex items-center gap-1.5 md:gap-2 min-w-0">
+                    <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-white flex items-center justify-center shadow-sm border border-slate-100 flex-shrink-0">
+                      <Navigation className="w-3 h-3 md:w-3.5 md:h-3.5 text-secondary" />
                     </div>
                     <div className="min-w-0">
-                      <span className="text-[7.5px] font-black uppercase tracking-wider text-gray-400 block leading-none">Pickup Location</span>
-                      <span className="font-bold text-[10.5px] text-secondary block truncate mt-0.5">{registeredData.pickupLocation || 'Not Specified'}</span>
+                      <span className="text-[6.5px] md:text-[7.5px] font-black uppercase tracking-wider text-gray-400 block leading-none">Pickup</span>
+                      <span className="font-bold text-[9px] md:text-[10.5px] text-secondary block truncate mt-0.5">{registeredData.pickupLocation || 'Not Specified'}</span>
                     </div>
                   </div>
                 </div>
 
                 {/* dynamic QR Code for Gate Verification */}
                 {qrCodeUrl && (
-                  <div className="flex flex-col items-center mt-3">
-                    <div className="p-2.5 bg-white border border-amber-500/20 rounded-[1.25rem] shadow-md">
-                      <img src={qrCodeUrl} alt="Verify Pass" className="w-20 h-20" />
+                  <div className="flex flex-col items-center mt-2.5 md:mt-3">
+                    <div className="p-2 md:p-2.5 bg-white border border-amber-500/20 rounded-[1rem] md:rounded-[1.25rem] shadow-md flex-shrink-0">
+                      <img src={qrCodeUrl} alt="Verify Pass" className="w-14 h-14 md:w-20 md:h-20" />
                     </div>
-                    <div className="flex items-center gap-2 mt-3">
-                      <span className="w-5 h-[1px] bg-amber-500/30" />
-                      <span className="text-[8.5px] font-black uppercase tracking-[0.15em] text-[#1a1a54]">Scan to Verify Pass</span>
-                      <span className="w-5 h-[1px] bg-amber-500/30" />
+                    <div className="flex items-center gap-2 mt-2 md:mt-3">
+                      <span className="w-4 md:w-5 h-[1px] bg-amber-500/30" />
+                      <span className="text-[7.5px] md:text-[8.5px] font-black uppercase tracking-[0.12em] md:tracking-[0.15em] text-[#1a1a54]">Scan to Verify Pass</span>
+                      <span className="w-4 md:w-5 h-[1px] bg-amber-500/30" />
                     </div>
                   </div>
                 )}
 
                 {/* Unity in Diversity Slogan Footer Bar */}
                 <div 
-                  className="w-full py-4 flex flex-col items-center justify-center relative overflow-hidden mt-4"
-                  style={{ 
-                    backgroundColor: '#101130', 
-                    borderBottomLeftRadius: '3rem', 
-                    borderBottomRightRadius: '3rem'
-                  }}
+                  className="w-full py-2.5 md:py-4 flex flex-col items-center justify-center relative overflow-hidden mt-2.5 md:mt-4 rounded-b-[2rem] md:rounded-b-[3rem]"
+                  style={{ backgroundColor: '#101130' }}
                 >
                   {/* Diagonal Stripe Accents in Footer */}
                   <div className="absolute inset-0 bg-[linear-gradient(45deg,rgba(255,255,255,0.02)_25%,transparent_25%,transparent_50%,rgba(255,255,255,0.02)_50%,rgba(255,255,255,0.02)_75%,transparent_75%,transparent)] bg-[size:10px_10px] pointer-events-none" />
                   
-                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-secondary relative z-10">
+                  <p className="text-[8.5px] md:text-[10px] font-black uppercase tracking-[0.2em] text-secondary relative z-10">
                     "Unity is Diversity"
                   </p>
-                  <div className="w-12 h-[2px] bg-secondary mt-1 rounded-full relative z-10" />
+                  <div className="w-10 md:w-12 h-[2px] bg-secondary mt-1 rounded-full relative z-10" />
               </div>
             </div>
           </div>
