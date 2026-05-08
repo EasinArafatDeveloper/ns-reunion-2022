@@ -13,6 +13,34 @@ const RegisterPage = () => {
   const [registeredData, setRegisteredData] = useState<any | null>(null);
   const [isDownloading, setIsDownloading] = useState(false);
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
+  const [eventInfo, setEventInfo] = useState({
+    location_bn: 'কুয়াকাটা সমুদ্রসৈকত',
+    location_en: 'Kuakata Sea Beach',
+    date_bn: '৩১শে ডিসেম্বর, ২০২৬',
+    date_en: 'December 31, 2026',
+  });
+
+  React.useEffect(() => {
+    const fetchEventInfo = async () => {
+      try {
+        const res = await fetch('/api/admin/content');
+        const content = await res.json();
+        const fe = content.find((c: any) => c.key === 'featured_event');
+        if (fe) {
+          const feValue = JSON.parse(fe.value);
+          setEventInfo({
+            location_bn: feValue.location_bn || 'কুয়াকাটা সমুদ্রসৈকত',
+            location_en: feValue.location_en || 'Kuakata Sea Beach',
+            date_bn: feValue.date_bn || '৩১শে ডিসেম্বর, ২০২৬',
+            date_en: feValue.date_en || 'December 31, 2026',
+          });
+        }
+      } catch (error) {
+        console.error('Failed to fetch event content', error);
+      }
+    };
+    fetchEventInfo();
+  }, []);
 
   React.useEffect(() => {
     if (registeredData) {
@@ -684,7 +712,9 @@ const RegisterPage = () => {
                     </div>
                     <div className="min-w-0">
                       <span className="text-[6.5px] md:text-[7.5px] font-black uppercase tracking-wider text-gray-400 block leading-none">Location</span>
-                      <span className="font-bold text-[9px] md:text-[10.5px] text-[#1a1a54] block truncate mt-0.5">Kuakata Sea Beach</span>
+                      <span className="font-bold text-[9px] md:text-[10.5px] text-[#1a1a54] block truncate mt-0.5">
+                        {language === 'bn' ? eventInfo.location_bn : eventInfo.location_en}
+                      </span>
                     </div>
                   </div>
                   
@@ -695,7 +725,9 @@ const RegisterPage = () => {
                     </div>
                     <div className="min-w-0">
                       <span className="text-[6.5px] md:text-[7.5px] font-black uppercase tracking-wider text-gray-400 block leading-none">Date</span>
-                      <span className="font-bold text-[9px] md:text-[10.5px] text-[#1a1a54] block truncate mt-0.5">Dec 31, 2026</span>
+                      <span className="font-bold text-[9px] md:text-[10.5px] text-[#1a1a54] block truncate mt-0.5">
+                        {language === 'bn' ? eventInfo.date_bn : eventInfo.date_en}
+                      </span>
                     </div>
                   </div>
 
