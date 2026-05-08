@@ -29,11 +29,20 @@ export default function Home() {
       <Navbar />
       
       {/* Hero Section */}
-      <section className="relative min-h-screen pt-20 flex items-center overflow-hidden bg-white">
+      <section className="relative min-h-screen pt-20 pb-16 md:pb-28 flex items-center overflow-hidden bg-white">
         {/* Decorative Background */}
         <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10">
           <div className="absolute top-[10%] left-[5%] w-[30%] h-[30%] rounded-full bg-primary/5 blur-[120px] opacity-70" />
           <div className="absolute bottom-[10%] right-[5%] w-[40%] h-[40%] rounded-full bg-secondary/5 blur-[120px] opacity-70" />
+        </div>
+
+        {/* Architectural Sketch Background Overlay */}
+        <div className="absolute bottom-[40px] md:bottom-[90px] left-[-5%] md:left-[2%] w-[65%] md:w-[38%] max-w-[600px] aspect-square -z-10 opacity-[0.13] pointer-events-none mix-blend-multiply">
+          <img 
+            src="/sketch_building.png" 
+            alt="Historical academic gate sketch background pattern" 
+            className="w-full h-full object-contain"
+          />
         </div>
 
         <div className="max-w-[1600px] mx-auto px-4 sm:px-8 lg:px-16 w-full">
@@ -50,12 +59,12 @@ export default function Home() {
                 <span>{language === 'bn' ? 'রিইউনিয়ন 2.0 (2026)' : 'Reunion 2.0 (2026)'}</span>
               </div>
               
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight text-primary leading-[1.2] mb-5">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight text-primary leading-[1.2] mb-3">
                 {t.hero.title}
-                <span className="block mt-1 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                  {t.hero.subtitle}
-                </span>
               </h1>
+              <div className="text-xl md:text-2xl lg:text-[2rem] font-black tracking-normal bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-5 leading-[1.3]">
+                {t.hero.subtitle}
+              </div>
               
               <p className="text-base md:text-lg text-gray-600 leading-relaxed mb-6 max-w-lg font-medium">
                 {language === 'bn' 
