@@ -43,13 +43,40 @@ const GalleryAdmin = () => {
     const files = e.target.files;
     if (files) {
       Array.from(files).forEach(file => {
-        if (file.size > 2 * 1024 * 1024) {
-          Swal.fire('Error', `Image ${file.name} size should be less than 2MB`, 'error');
-          return;
-        }
         const reader = new FileReader();
         reader.onloadend = () => {
-          setSelectedFiles(prev => [...prev, { title: file.name.split('.')[0], image: reader.result as string }]);
+          const img = new window.Image();
+          img.src = reader.result as string;
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const MAX_WIDTH = 1000;
+            const MAX_HEIGHT = 1000;
+            let width = img.width;
+            let height = img.height;
+
+            if (width > height) {
+              if (width > MAX_WIDTH) {
+                height *= MAX_WIDTH / width;
+                width = MAX_WIDTH;
+              }
+            } else {
+              if (height > MAX_HEIGHT) {
+                width *= MAX_HEIGHT / height;
+                height = MAX_HEIGHT;
+              }
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+              ctx.drawImage(img, 0, 0, width, height);
+              const compressedBase64 = canvas.toDataURL('image/jpeg', 0.75);
+              setSelectedFiles(prev => [...prev, { title: file.name.split('.')[0], image: compressedBase64 }]);
+            } else {
+              setSelectedFiles(prev => [...prev, { title: file.name.split('.')[0], image: reader.result as string }]);
+            }
+          };
         };
         reader.readAsDataURL(file);
       });

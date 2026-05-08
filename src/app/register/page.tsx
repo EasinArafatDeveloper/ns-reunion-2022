@@ -191,21 +191,40 @@ const RegisterPage = () => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 4 * 1024 * 1024) { // 4MB limit
-        Swal.fire({
-          icon: 'error',
-          title: language === 'bn' ? 'ছবির সাইজ অনেক বড়!' : 'Image Size Too Large!',
-          text: language === 'bn' 
-            ? 'অনুগ্রহ করে ৪ মেগাবাইট (4MB) এর চেয়ে ছোট সাইজের ছবি আপলোড করুন।' 
-            : 'Please upload an image smaller than 4MB in size.',
-          confirmButtonColor: '#1a1a54',
-          customClass: { popup: 'rounded-[2rem]' }
-        });
-        return;
-      }
       const reader = new FileReader();
       reader.onloadend = () => {
-        setFormData({ ...formData, photo: reader.result as string });
+        const img = new window.Image();
+        img.src = reader.result as string;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const MAX_WIDTH = 480;
+          const MAX_HEIGHT = 480;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > MAX_WIDTH) {
+              height *= MAX_WIDTH / width;
+              width = MAX_WIDTH;
+            }
+          } else {
+            if (height > MAX_HEIGHT) {
+              width *= MAX_HEIGHT / height;
+              height = MAX_HEIGHT;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, width, height);
+            const compressedBase64 = canvas.toDataURL('image/jpeg', 0.75);
+            setFormData({ ...formData, photo: compressedBase64 });
+          } else {
+            setFormData({ ...formData, photo: reader.result as string });
+          }
+        };
       };
       reader.readAsDataURL(file);
     }
