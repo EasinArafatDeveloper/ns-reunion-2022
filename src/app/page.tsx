@@ -138,7 +138,7 @@ export default function Home() {
                     {memberCount === null ? (
                       <Loader2 className="w-6 h-6 animate-spin text-white/80" />
                     ) : (
-                      `${memberCount}+`
+                      `${21 + (memberCount || 0)}+`
                     )}
                   </p>
                 </div>
