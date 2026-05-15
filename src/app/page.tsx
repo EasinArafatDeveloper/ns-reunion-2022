@@ -27,7 +27,7 @@ export default function Home() {
   return (
     <main className={`min-h-screen ${language === 'bn' ? 'font-bengali' : 'font-sans'}`}>
       <Navbar />
-      
+
       {/* Hero Section */}
       <section className="relative min-h-screen pt-20 pb-16 md:pb-28 flex items-center overflow-hidden bg-white">
         {/* Decorative Background */}
@@ -38,16 +38,16 @@ export default function Home() {
 
         {/* Architectural Sketch Background Overlay */}
         <div className="absolute bottom-[40px] md:bottom-[90px] left-[-5%] md:left-[2%] w-[65%] md:w-[38%] max-w-[600px] aspect-square -z-10 opacity-[0.13] pointer-events-none mix-blend-multiply">
-          <img 
-            src="/sketch_building.png" 
-            alt="Historical academic gate sketch background pattern" 
+          <img
+            src="/sketch_building.png"
+            alt="Historical academic gate sketch background pattern"
             className="w-full h-full object-contain"
           />
         </div>
 
         <div className="max-w-[1600px] mx-auto px-4 sm:px-8 lg:px-16 w-full">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            
+
             {/* Left Content */}
             <motion.div
               initial={{ opacity: 0, x: -50 }}
@@ -58,17 +58,17 @@ export default function Home() {
                 <Sparkles className="w-3 h-3 text-white/80" />
                 <span>{language === 'bn' ? 'রিইউনিয়ন 2.0 (2026)' : 'Reunion 2.0 (2026)'}</span>
               </div>
-              
+
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight text-primary leading-[1.2] mb-3">
                 {t.hero.title}
               </h1>
               <div className="text-xl md:text-2xl lg:text-[2rem] font-black tracking-normal bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-5 leading-[1.3]">
                 {t.hero.subtitle}
               </div>
-              
+
               <p className="text-base md:text-lg text-gray-600 leading-relaxed mb-6 max-w-lg font-medium">
-                {language === 'bn' 
-                  ? 'হারিয়ে যাওয়া দিনগুলোর স্মৃতি রোমন্থন করতে এবং পুরোনো বন্ধুদের সাথে আবার মিলিত হতে আজই আপনার নাম নথিভুক্ত করুন।' 
+                {language === 'bn'
+                  ? 'হারিয়ে যাওয়া দিনগুলোর স্মৃতি রোমন্থন করতে এবং পুরোনো বন্ধুদের সাথে আবার মিলিত হতে আজই আপনার নাম নথিভুক্ত করুন।'
                   : 'Register today to reminisce about the lost days and reconnect with old friends once again.'}
               </p>
 
@@ -95,7 +95,7 @@ export default function Home() {
                     <span>{t.hero.sponsorCta}</span>
                   </motion.button>
                 </Link>
-                
+
                 <Link href="/events" className="w-full sm:w-auto">
                   <motion.button
                     whileHover={{ scale: 1.05 }}
@@ -117,19 +117,19 @@ export default function Home() {
             >
               {/* Decorative Circle */}
               <div className="absolute -z-10 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[110%] h-[110%] border-[30px] border-primary/5 rounded-full animate-spin-slow" />
-              
+
               <div className="relative bg-white/30 backdrop-blur-md p-8 md:p-10 rounded-[3.5rem] border border-white/40 shadow-2xl overflow-hidden group">
                 <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-full -mr-12 -mt-12 blur-2xl group-hover:bg-primary/10 transition-all" />
-                
+
                 <div className="text-center mb-8">
                   <h3 className="text-xl font-bold text-primary mb-2">
                     {language === 'bn' ? 'রিইউনিয়ন শুরু হতে বাকি' : 'Countdown to Reunion'}
                   </h3>
                   <div className="w-12 h-1 bg-secondary mx-auto rounded-full" />
                 </div>
-                
+
                 <Countdown />
-                
+
                 <div className="mt-10 p-5 bg-gradient-to-br from-primary to-blue-900 rounded-[2rem] text-white text-center shadow-xl">
                   <p className="text-xs font-medium opacity-80 uppercase tracking-widest mb-1">
                     {language === 'bn' ? 'অংশগ্রহণকারী সংখ্যা' : 'Registered Members'}
@@ -138,7 +138,7 @@ export default function Home() {
                     {memberCount === null ? (
                       <Loader2 className="w-6 h-6 animate-spin text-white/80" />
                     ) : (
-                      `${21 + (memberCount || 0)}+`
+                      `${30 + (memberCount || 0)}+`
                     )}
                   </p>
                 </div>
