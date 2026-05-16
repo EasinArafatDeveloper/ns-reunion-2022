@@ -9,7 +9,7 @@ export const en = {
   },
   hero: {
     title: "Welcome to Reunion 2.0 (2026)",
-    subtitle: "Reconnecting old friends, creating new memories.",
+    subtitle: "Call of Reunion 2026—\nLet us unite,\nIn the bond of NS Unity Forum 2022\nLet's become one.",
     cta: "Register Now",
     sponsorCta: "Become a Sponsor",
   },

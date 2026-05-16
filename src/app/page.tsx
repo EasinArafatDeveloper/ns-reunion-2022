@@ -59,14 +59,21 @@ export default function Home() {
                 <span>{language === 'bn' ? 'রিইউনিয়ন 2.0 (2026)' : 'Reunion 2.0 (2026)'}</span>
               </div>
 
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight text-primary leading-[1.2] mb-3">
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-black tracking-tight text-primary leading-[1.2] mb-6">
                 {t.hero.title}
               </h1>
-              <div className="text-xl md:text-2xl lg:text-[2rem] font-black tracking-normal bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-5 leading-[1.3]">
-                {t.hero.subtitle}
+              
+              <div className="relative p-5 md:p-6 bg-gradient-to-br from-primary/5 via-white/50 to-secondary/5 rounded-[1.5rem] border border-primary/10 shadow-lg shadow-primary/5 mb-6 backdrop-blur-sm group hover:border-primary/20 hover:shadow-xl transition-all">
+                {/* Decorative Quotes */}
+                <div className="absolute -top-2 -left-1 text-5xl md:text-6xl text-primary/20 font-serif leading-none group-hover:scale-110 transition-transform group-hover:text-primary/30">"</div>
+                <div className="absolute -bottom-6 -right-1 text-5xl md:text-6xl text-secondary/20 font-serif leading-none rotate-180 group-hover:scale-110 transition-transform group-hover:text-secondary/30">"</div>
+                
+                <div className="text-lg md:text-xl lg:text-[1.4rem] font-bold tracking-wide text-gray-800 leading-[1.6] whitespace-pre-line relative z-10">
+                  {t.hero.subtitle}
+                </div>
               </div>
 
-              <p className="text-base md:text-lg text-gray-600 leading-relaxed mb-6 max-w-lg font-medium">
+              <p className="text-base md:text-lg text-gray-600 leading-relaxed mb-8 max-w-xl font-medium">
                 {language === 'bn'
                   ? 'হারিয়ে যাওয়া দিনগুলোর স্মৃতি রোমন্থন করতে এবং পুরোনো বন্ধুদের সাথে আবার মিলিত হতে আজই আপনার নাম নথিভুক্ত করুন।'
                   : 'Register today to reminisce about the lost days and reconnect with old friends once again.'}

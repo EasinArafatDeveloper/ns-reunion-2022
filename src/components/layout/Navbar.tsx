@@ -37,9 +37,8 @@ const Navbar = () => {
 
   return (
     <nav
-      className={`fixed w-full z-50 transition-all duration-300 ${
-        scrolled ? 'bg-white/80 backdrop-blur-md shadow-lg py-2' : 'bg-transparent py-4'
-      }`}
+      className={`fixed w-full z-50 transition-all duration-300 ${scrolled ? 'bg-white/80 backdrop-blur-md shadow-lg py-2' : 'bg-transparent py-4'
+        }`}
     >
       <div className="max-w-[1600px] mx-auto px-4 sm:px-8 lg:px-16">
         <div className="flex justify-between items-center">
@@ -56,11 +55,10 @@ const Navbar = () => {
                 key={link.name}
                 href={link.href}
                 onClick={() => link.href === '/notices' && markAsRead()}
-                className={`font-bold transition-all relative ${
-                  pathname === link.href 
-                    ? ((pathname.startsWith('/events') || pathname.startsWith('/notices')) && !scrolled ? 'text-secondary' : 'text-primary')
-                    : ((pathname.startsWith('/events') || pathname.startsWith('/notices')) && !scrolled ? 'text-white/80 hover:text-white' : 'text-gray-600 hover:text-primary')
-                }`}
+                className={`font-bold transition-all relative ${pathname === link.href
+                  ? ((pathname.startsWith('/events') || pathname.startsWith('/notices')) && !scrolled ? 'text-secondary' : 'text-primary')
+                  : ((pathname.startsWith('/events') || pathname.startsWith('/notices')) && !scrolled ? 'text-white/80 hover:text-white' : 'text-gray-600 hover:text-primary')
+                  }`}
               >
                 {link.name}
                 {link.href === '/notices' && hasUnread && (
@@ -68,14 +66,13 @@ const Navbar = () => {
                 )}
               </Link>
             ))}
-            
+
             <button
               onClick={toggleLanguage}
-              className={`flex items-center space-x-2 px-4 py-2 rounded-full border transition-all group font-semibold ${
-                (pathname.startsWith('/events') || pathname.startsWith('/notices')) && !scrolled 
-                  ? 'border-white/30 text-white hover:border-white hover:bg-white/10' 
-                  : 'border-gray-200 text-gray-700 hover:border-primary hover:text-primary'
-              }`}
+              className={`flex items-center space-x-2 px-4 py-2 rounded-full border transition-all group font-semibold ${(pathname.startsWith('/events') || pathname.startsWith('/notices')) && !scrolled
+                ? 'border-white/30 text-white hover:border-white hover:bg-white/10'
+                : 'border-gray-200 text-gray-700 hover:border-primary hover:text-primary'
+                }`}
             >
               <Globe className="w-4 h-4 group-hover:rotate-12 transition-transform" />
               <span className="text-sm">
