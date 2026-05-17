@@ -11,7 +11,7 @@ export async function POST(req: Request) {
     // Create new sponsorship in MongoDB
     const newSponsorship = await Sponsorship.create(data);
 
-    // Setup Nodemailer Transporter if credentials exist
+    // Setup Nodemailer Transporter if credentials exist (with 3-second strict timeout)
     if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
       try {
         const transporter = nodemailer.createTransport({
@@ -83,15 +83,26 @@ export async function POST(req: Request) {
           </html>
         `;
 
-        await transporter.sendMail({
-          from: `"NS Reunion" <${process.env.EMAIL_USER}>`,
-          to: data.email,
-          subject: `Thank you for your Sponsorship! - NS Reunion`,
-          html: emailHtml,
-        });
-      } catch (emailErr) {
-        console.error('Sponsorship Email Error:', emailErr);
+        console.log(`Attempting to send sponsorship email to ${data.email} with 3s timeout...`);
+
+        await Promise.race([
+          transporter.sendMail({
+            from: `"NS Reunion" <${process.env.EMAIL_USER}>`,
+            to: data.email,
+            subject: `Thank you for your Sponsorship! - NS Reunion`,
+            html: emailHtml,
+          }),
+          new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('SMTP email sending timed out after 3000ms')), 3000)
+          )
+        ]);
+
+        console.log(`Sponsorship email successfully sent to ${data.email}`);
+      } catch (emailErr: any) {
+        console.error('Sponsorship Email Error (Gracefully handled):', emailErr.message || emailErr);
       }
+    } else {
+      console.warn('WARNING: EMAIL_USER or EMAIL_PASS environment variables are missing. Sponsorship email skipped.');
     }
     
     return NextResponse.json({ 
