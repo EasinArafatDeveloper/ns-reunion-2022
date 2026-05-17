@@ -216,6 +216,151 @@ const RegistrationsAdmin = () => {
     }
   };
 
+  const handleExport = () => {
+    if (registrations.length === 0) {
+      Swal.fire({
+        icon: 'info',
+        title: 'No Data',
+        text: 'There are no registrations to export.',
+        confirmButtonColor: '#1a1a54',
+        customClass: { popup: 'rounded-[2rem]' }
+      });
+      return;
+    }
+
+    Swal.fire({
+      title: 'Export Registrations',
+      text: 'Choose which data you would like to export to CSV (Excel compatible):',
+      icon: 'question',
+      showCancelButton: true,
+      showDenyButton: true,
+      confirmButtonText: 'Export All',
+      denyButtonText: 'Export Filtered',
+      cancelButtonText: 'Cancel',
+      confirmButtonColor: '#1a1a54',
+      denyButtonColor: '#ff8c00',
+      cancelButtonColor: '#d33',
+      customClass: {
+        popup: 'rounded-[2rem]',
+        confirmButton: 'rounded-xl px-6 py-3 font-black text-white',
+        denyButton: 'rounded-xl px-6 py-3 font-black text-white',
+        cancelButton: 'rounded-xl px-6 py-3 font-black text-white'
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        exportToCSV(registrations, 'all_registrations');
+      } else if (result.isDenied) {
+        exportToCSV(filteredRegistrations, 'filtered_registrations');
+      }
+    });
+  };
+
+  const exportToCSV = (dataToExport: any[], fileNamePrefix: string) => {
+    if (dataToExport.length === 0) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Empty List',
+        text: 'The selected list is empty.',
+        confirmButtonColor: '#1a1a54',
+        customClass: { popup: 'rounded-[2rem]' }
+      });
+      return;
+    }
+
+    // CSV Headers (English and Bengali support)
+    const headers = [
+      'Name (নাম)',
+      'Email (ইমেইল)',
+      'Phone (মোবাইল)',
+      'Reunion Section (বিভাগ - পুনর্মিলনী)',
+      'Reunion Department (শাখা - পুনর্মিলনী)',
+      'SSC Batch / Code (ব্যাচ)',
+      'Current Institute (বর্তমান প্রতিষ্ঠান)',
+      'Current Section (বর্তমান বিভাগ)',
+      'Current Department (বর্তমান শাখা)',
+      'Occupation (পেশা)',
+      'T-Shirt Size (টি-শার্ট)',
+      'Paid Amount (টাকা)',
+      'Payment Method (পেমেন্ট পদ্ধতি)',
+      'Transaction ID (TrxID)',
+      'Pickup Location (পিকআপ)',
+      'Dropping Location (ড্রপিং)',
+      'Status (অবস্থা)',
+      'Registration Date (তারিখ)',
+      'Comment (মন্তব্য)'
+    ];
+
+    // Map data rows
+    const rows = dataToExport.map(reg => {
+      const dateStr = reg.createdAt 
+        ? new Date(reg.createdAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+        : 'N/A';
+        
+      return [
+        reg.name || '',
+        reg.email || '',
+        reg.phone || '',
+        reg.section || '',
+        reg.department || '',
+        reg.code || '',
+        reg.institute || '',
+        reg.currentSection || '',
+        reg.currentDepartment || '',
+        reg.occupation || '',
+        reg.tshirtSize || '',
+        reg.amount || 0,
+        reg.paymentOption || '',
+        reg.transactionId || '',
+        reg.pickupLocation || '',
+        reg.droppingLocation || '',
+        reg.status || 'pending',
+        dateStr,
+        (reg.comment || '')
+      ];
+    });
+
+    // Construct CSV content and escape fields
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.map(val => {
+        if (typeof val === 'string') {
+          return `"${val.replace(/"/g, '""')}"`;
+        }
+        return val;
+      }).join(','))
+    ].join('\n');
+
+    // Create a Blob with UTF-8 BOM
+    // \uFEFF is the UTF-8 Byte Order Mark (BOM)
+    // Excel needs this to open UTF-8 CSVs correctly with special/Unicode characters like Bengali
+    const BOM = '\uFEFF';
+    const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
+    
+    // Create download link
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    
+    const formattedDate = new Date().toISOString().split('T')[0];
+    link.setAttribute('href', url);
+    link.setAttribute('download', `${fileNamePrefix}_${formattedDate}.csv`);
+    link.style.visibility = 'hidden';
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'success',
+      title: 'Data exported successfully!',
+      showConfirmButton: false,
+      timer: 3000,
+      background: '#1a1a54',
+      color: '#ffffff'
+    });
+  };
+
   const totalAmount = registrations.reduce((sum, reg) => sum + (reg.amount || 0), 0);
   const approvedAmount = registrations
     .filter(r => r.status === 'approved')
@@ -255,7 +400,10 @@ const RegistrationsAdmin = () => {
             <span className="text-[10px] font-black text-secondary uppercase tracking-widest">Total Collected</span>
             <span className="text-xl font-black">৳ {totalAmount.toLocaleString()}</span>
           </div>
-          <button className="flex items-center gap-2 px-6 py-4 bg-gray-50 text-primary border border-gray-100 rounded-3xl font-black hover:bg-gray-100 transition-all">
+          <button 
+            onClick={handleExport}
+            className="flex items-center gap-2 px-6 py-4 bg-gray-50 text-primary border border-gray-100 rounded-3xl font-black hover:bg-gray-100 transition-all"
+          >
             <Download className="w-4 h-4" />
             <span>Export</span>
           </button>
